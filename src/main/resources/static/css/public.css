@@ -1,0 +1,417 @@
+/****************************
+***************
+***************
+***************
+鍏敤鏍峰紡鏂囦欢锛岃鍕垮姩锛�
+***************
+***************
+***************
+***************/
+
+
+@charset "utf-8";
+html,body {
+	-webkit-text-size-adjust:none;
+}
+body {
+	margin: 0; 
+	font-size:12px; 
+	font-family:Microsoft Yahei; 
+	width:100%;
+	overflow-x: hidden;
+	-webkit-text-size-adjust:none;
+	background-color: #ffffff;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+}
+img {
+	vertical-align:middle;
+	border:none;
+}
+
+i,em{
+	font-style: normal;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-size: 12px;
+}
+
+img,div,h1, h2, h3, h4, h5, h6, p, figure, form, blockquote,ul, ol, li, dl, dd{
+	margin: 0; 
+	padding: 0;
+	text-align: left;
+}
+ul li,ol li{
+	list-style: none outside none;
+}
+h1, h2, h3{
+	font-weight: normal;
+}
+b{
+	font-weight:normal;
+}
+
+
+/*琛ㄥ崟榛樿鏍峰紡*/
+button {
+	border: none;
+	line-height: normal; 
+	-webkit-tap-highlight-color:transparent;
+	-webkit-appearance: none; 
+}
+input:focus,select:focus,button:focus {
+	outline: none;
+	} 
+input{
+
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+	height: auto;
+	-webkit-appearance: none;
+	-moz-appearance: textfield;
+}
+input[type="search"]{
+	-webkit-appearance: textfield; 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration{
+	-webkit-appearance: none;
+}
+textarea{
+	overflow: auto; 
+	resize: vertical;
+	-webkit-appearance: none;
+}
+input[type="button"], input[type="submit"], input[type="reset"],input[type="text"] {
+	-webkit-appearance: none; 
+	-webkit-border-radius: 0;
+}
+
+button, input, select, textarea{ 
+	font-family: Microsoft Yahei;
+}
+input[type="button"] {
+	background: none;
+	border: none;
+}
+.input-text { 
+	width:100%; 
+	height: 100%; 
+	font-size: 13px;
+	text-indent:5px;
+	color: #666666; 
+	border: none;
+	-webkit-appearance: textfield; 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
+	}
+.select {
+    width: 100%;
+    height: 100%;
+    border: none;	
+ }
+.button {
+	width:100% ; 
+	height: 100%; 
+	border: none;
+	text-align: center;
+	-webkit-appearance: textfield; 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
+
+}
+a {
+	color: #323333;
+	text-decoration: none; 
+	-webkit-tap-highlight-color:transparent;
+}
+.clearfix:after {
+	clear: both;
+	content: ".";
+	display: block;
+	height: 0;
+	overflow: hidden;
+	visibility: hidden;
+}
+.fl {
+	float:left;
+}
+.fr {
+	float:right;
+}
+
+.font-w{
+	font-weight: bold;
+}
+
+#center {
+	max-width:600px;
+}
+.text-align{
+	text-align: center;
+}
+/*瀛椾綋澶у皬*/
+.f12{ 
+	font-size:12px!important;
+}
+.f14{ 
+	font-size:14px!important;
+}
+.f15{
+	font-size:15px!important;
+}
+.f16{
+	font-size:16px!important;
+}
+.f18{
+	font-size:18px!important;
+}
+.f20{
+	font-size:20px!important;
+}
+.f24{
+	font-size:24px!important;
+}
+.f28{
+	font-size:28px!important;
+}
+.f30{
+	font-size:30px!important;
+}
+.f36{
+	font-size:36px!important;
+}
+/*行高*/
+.hg15{
+	height:15px;
+	line-height:15px;
+}
+.hg20{
+	height:20px;
+	line-height:20px;
+}
+.hg25{
+	height:25px;
+	line-height:25px;
+}
+.hg30{
+	height:30px;
+	line-height:30px;
+}
+.hg35{
+	height:35px;
+	line-height:35px;
+}
+.hg40{
+	height:40px;
+	line-height:40px;
+}
+.hg45{
+	height:45px;
+	line-height:45px;
+}
+.hg50{
+	height:50px;
+	line-height:50px;
+}
+.hg60{
+	height:60px;
+	line-height:60px;
+}
+.hg70{
+	height:70px;
+	line-height:70px;
+}
+.hg80{
+	height:80px;
+	line-height:80px;
+}
+/*宽度*/
+.w100{
+	width:100%!important;
+}
+.w50{
+	width:50%!important;
+}
+/*瀛椾綋棰滆壊*/
+.color-f{
+	color:#fff;
+}
+.color-ee{
+	color:#eee!important;
+}
+.color-91{
+	color:#919191!important;
+}
+.color-a7{
+	color:#a7a7a7!important;
+}
+.color-9e{
+	color:#9e9e9e!important;
+}
+.color-ab{
+	color:#ababab!important;
+}
+.color-w {
+	color: white!important;
+}
+.color-o {/*姗欒壊*/
+	color: #ff8002!important;
+}
+.color-b {
+	color: #00c0ff!important;
+}
+.color-bbb {
+	color: #bbbbbb!important;
+}
+.color-b3b{/*瀛椾綋鐏拌壊*/
+	color:#b3b3b3!important;
+}
+.color-58d{
+	color:#58d4fe!important;
+}
+.color-back{
+	color:#000000!important;
+}
+.color-gold{
+	color:#c5a57d!important;
+}
+/*鑳屾櫙鑹�*/
+.back-blue{ /*钃濊壊*/
+	background-color: #58d4fe!important;
+}
+.back-yellow{
+	background-color: #ffba00!important;
+}
+.back-white{
+	background-color: #fff!important;
+}
+.back-o{
+	background-color:#ff8002!important; 
+}
+.back-f3{
+	background-color:#f3f3f3;
+}
+.back-ec {
+	background-color: #ececec;
+}
+
+/*杈规*/
+.border-white{
+	border:solid 2px #fff!important;
+}
+.border-circular{
+	border-radius: 50%!important;
+}
+.border-a{
+	border:solid 1px #58d4fe!important;
+}
+.border-b-ddd { /*涓嬭竟妗�*/
+	border-bottom: 1px solid #dddddd;   
+}
+
+.border-t-ddd { /*涓婅竟妗�*/
+	border-bottom: 1px solid #dddddd;   
+}
+
+
+
+/*濉厖padding*/
+.padding-l-f20 {
+	padding:0 20px;
+}
+.padding-t15 {
+	padding-top: 15px;
+}
+
+.padding-t10 {
+	padding-top: 10px;
+}
+.padding-l-f10 {
+	padding:0 10px;
+}
+.padding-tb{
+	padding:9px 0;
+}
+.padding-l10 {
+	padding-left: 10px!important;
+}
+
+
+
+/*杈硅窛magin*/
+.margin-t50 {
+	margin-top: 50px;
+}
+.margin-t5{
+	margin-top:5px;
+}
+
+.margin-t45 {
+	margin-top: 45px;
+}
+.margin-t35 {
+	margin-top: 35px;
+}
+.margin-t30 {
+	margin-top: 30px;
+}
+.margin-t25 {
+	margin-top: 25px;
+}
+.margin-t15 {
+	margin-top: 15px;
+}
+.margin-b6 {
+	margin-bottom: 6px;
+}
+.margin-t10{
+	margin-top: 10px!important;
+}
+.margin-t20{
+	margin-top: 20px!important;
+}
+.margin-b120 {
+	margin-bottom: 120px!important;
+}
+.margin-b10{
+	margin-bottom: 10px!important;
+}
+.margin-b20{
+	margin-bottom: 20px!important;
+}
+.margin-b50{
+	margin-bottom: 50px!important;
+}
+
+/*鏇村*/
+.more { float: left; height: 20px;}
+.more span { float: left; width: 5px; height: 5px;  background-color: #007AFF; border-radius: 50%; margin: 7px 2px;}
+
+
+
+
+.disabled {background-color: #ccc!important;color: #333!important;border-color: #ccc!important;}
+
+
+
+/*鏂板姞*/
+
+
+
+
+
+
+
+
+
+
+
+
