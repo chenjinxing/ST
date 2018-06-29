@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.demo.entity.CiBatch;
 import com.example.demo.entity.Partnertype;
+import com.example.demo.protocol.CI_RtnPartnertypeData;
 import com.example.demo.service.CIBatchService;
 import com.example.demo.service.PartnertypeService;
 
@@ -64,48 +65,4 @@ public class CI_ReqPartnertype extends ApiBase {
 		}
 		return defaultRtnInfo;
 	}
-}
-
-class CI_RtnPartnertypeData
-{
-	public CI_RtnPartnertypeData()
-	{}
-	public CI_RtnPartnertypeData(int count, int result, String notice,
-			List<Partnertype> data) {
-		super();
-		this.count = count;
-		this.result = result;
-		this.notice = notice;
-		this.data = data;
-	}
-	private int count;
-	public int getCount() {
-		return count;
-	}
-	public void setCount(int count) {
-		this.count = count;
-	}
-	private int result;
-	private String notice;
-	private List<Partnertype> data;
-	
-	public List<Partnertype> getData() {
-		return data;
-	}
-	public void setData(List<Partnertype> data) {
-		this.data = data;
-	}
-	public int getResult() {
-		return result;
-	}
-	public void setResult(int result) {
-		this.result = result;
-	}
-	public String getNotice() {
-		return notice;
-	}
-	public void setNotice(String notice) {
-		this.notice = notice;
-	}
-
 }

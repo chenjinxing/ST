@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.api.ApiManager;
 import com.example.demo.api.CI_ReqPartnertype;
 import com.example.demo.api.CI_ReqUpdateOrderAll;
+import com.example.demo.entity.Partnertype;
 import com.example.demo.service.PartnertypeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -52,8 +53,15 @@ class PartnerPostController extends BaseController{
 	
 	@RequestMapping("/data")
 	@ResponseBody
-	public String data() {
-		return cI_ReqPartnertype.doAction(1,"1", "CI_ReqPartnertype", 1, "{}");
+	public String data(Integer limit, Integer offset, String typeid, String typename) {
+		Partnertype partnertype =new Partnertype();
+		//条件
+		if(null !=typeid)
+			partnertype.setTypeid(Integer.parseInt(typeid));
+		partnertype.setTypename(typename);
+		
+		return partnertypeService.selectByConditionJson(partnertype,offset,limit);
+		//return cI_ReqPartnertype.doAction(1,"1", "CI_ReqPartnertype", 1, "{}");
 	}
 	
 	@RequestMapping("/partnerTypeAdd")

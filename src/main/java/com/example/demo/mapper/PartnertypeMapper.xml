@@ -43,6 +43,37 @@
       0 =0
     </where>
   </select>
+  
+  <select id="selectSelectivePaging" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from partnertype
+    <where>
+      <if test="record.typeid != null">
+        partnerId = #{record.typeid,jdbcType=INTEGER} and 
+      </if>
+      <if test="record.typename != null">
+        appBatchId = #{record.typename,jdbcType=VARCHAR} and 
+      </if>
+      0 =0
+    </where>
+    limit #{start,jdbcType=INTEGER},#{size,jdbcType=INTEGER}
+  </select>
+  <select id="selectCountSelective" parameterType="com.example.demo.entity.Partnertype" resultType="java.lang.Integer">
+    select 
+    count(*)
+    from partnertype
+    <where>
+      <if test="typeid != null">
+        typeid = #{typeid,jdbcType=INTEGER} and 
+      </if>
+      <if test="typename != null">
+        typename = #{typename,jdbcType=VARCHAR} and 
+      </if>
+      0 =0
+    </where>
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

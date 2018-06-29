@@ -192,13 +192,15 @@
                 $('#tb_departments').bootstrapTable({
                     url: '/MavenSSM/Partner/data/',         //请求后台的URL（*）
                     method: 'post',                      //请求方式（*）
+                    contentType:"application/x-www-form-urlencoded",
                     toolbar: '#toolbar',                //工具按钮用哪个容器
                     striped: true,                      //是否显示行间隔色
                     cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
                     pagination: true,                   //是否显示分页（*）
                     sortable: false,                     //是否启用排序
                     sortOrder: "asc",                   //排序方式
-                    //queryParams: 1,//传递参数（*） oTableInit.queryParams
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
                     sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
                     pageNumber:1,                       //初始化加载第一页，默认第一页
                     pageSize: 10,                       //每页的记录行数（*）
@@ -244,8 +246,8 @@
                 var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
                     limit: params.limit,   //
                     offset: params.offset,  //页码
-                    departmentname: $("#txt_search_departmentname").val(),
-                    statu: $("#txt_search_statu").val()
+                    typeid: $("#condition_search_typeid").val(),
+                    typename: $("#condition_search_typename").val()
                 };
                 return temp;
             };
@@ -329,15 +331,17 @@
             <div class="panel-body">
                 <form id="formSearch" class="form-horizontal">
                     <div class="form-group" style="margin-top:15px">
-                        <label class="control-label col-sm-1" for="txt_search_departmentname">类型ID</label>
+                        <label class="control-label col-sm-1" for="condition_search_typeid">类型ID</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="typeid">
                         </div>
-                        <label class="control-label col-sm-1" for="txt_search_statu">类型描述</label>
+                        <label class="control-label col-sm-1" for="condition_search_typename">类型描述</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="typename">
                         </div>
-                        <button type="button" id="searchBtn" class="btn btn-default">开始搜索</button>
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
+                        </div>
                     </div>
                 </form>
             </div>
