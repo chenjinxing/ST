@@ -29,7 +29,21 @@ public class HomeController extends BaseController{
 	public String top(HttpServletRequest request) {
 		return "/top";
 	}
-	
+	@RequestMapping("/footer")
+	public String footer(HttpServletRequest request) {
+		
+		return "/footer";
+	}
+	@RequestMapping("/default")
+	public String defaultFun(HttpServletRequest request) {
+		
+		return "/default";
+	}
+	@RequestMapping("/left")
+	public String left(HttpServletRequest request) {
+		
+		return "/left";
+	}
 //	@RequestMapping("/login")
 //	public String login(HttpServletRequest request) {
 //		return "/login";
@@ -67,7 +81,7 @@ public class HomeController extends BaseController{
 		
 		return "/main";
 	}
-	
+
 }
 
 @RestController

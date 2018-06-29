@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>升通保理管理平台</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>无标题文档</title>
+   
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <script language="JavaScript" th:attr="src=@{/js/jquery-1.10.2.min.js}"></script>
+    <style>
+        .hand { cursor:pointer; }
+    </style>
+    <script>
+        
+        $(function () {
+            $("#tip").click(function () {
+                if ($("#hid").val() == "0") {
+                    parent.document.getElementById("middleFrame").cols = "0,*";
+                    $("#hid").val(1);
+                    $("#tip").html(" »显示菜单");
+                }
+                else {
+                    parent.document.getElementById("middleFrame").cols = "187,*";
+                    $("#hid").val(0);
+                    $("#tip").html(" «收起菜单");
+                }
+                
+            });            
+        });
+    </script>
 </head>
-<frameset rows="88,*,31" cols="*" frameborder="no" border="0" framespacing="0" style="background-color: rgb(204, 232, 207);">
-    <frame src="http://office.le1bao.com/home/top" name="topFrame" scrolling="No" noresize="noresize" id="topFrame" title="topFrame">
-    <frameset cols="187,*" frameborder="no" border="0" framespacing="0" id="middleFrame">
-        <frame src="http://office.le1bao.com/home/left" name="leftFrame" scrolling="Yes" noresize="noresize" id="leftFrame" title="leftFrame">
-        <frame src="http://office.le1bao.com/home/default" name="rightFrame" id="rightFrame" title="rightFrame">
-    </frameset>
-    <frame src="http://office.le1bao.com/home/footer" name="bottomFrame" scrolling="No" noresize="noresize" id="bottomFrame" title="bottomFrame">
-</frameset>
-
+<body>
+    <div class="footer">
+        <span id="tip" class="hand"> «收起菜单 </span>
+        <i>版权所有 2015 升通保理</i>
+    </div>
+    <input type="hidden" id="hid" value="0" />
+</body>
 </html>

@@ -1,5 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>无标题文档</title>
@@ -61,19 +61,72 @@
         <span></span>请点击操作
     </div>
     <div style="overflow-y: scroll; overflow-x: hidden; width: 187px; padding-bottom: 29px; margin-bottom: 29px; height: 100%;">
-
         <dl class="leftmenu">
                 <dd>
                     <div class="title">
                         <span>
-                            <img src="/content/assets/images/leftico01.png" />
-                        </span>订单管理
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>合作企业管理
                     </div>
                     <ul class="menuson">
-                            <li><cite></cite><a th:href="@{MavenSSM/home/main}" target="rightFrame" onclick="Show(this)">批次管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/partner/partnerType}" target="rightFrame" onclick="Show(this)">企业类型管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/partner/partner}" target="rightFrame" onclick="Show(this)">企业管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/partner/partner}" target="rightFrame" onclick="Show(this)">合作记录管理</a><i></i></li>
                     </ul>
                 </dd>
         </dl>
+ 		<dl class="leftmenu">
+                <dd>
+                    <div class="title">
+                        <span>
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>订单管理
+                    </div>
+                    <ul class="menuson">
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">批次管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">订单管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">账户管理</a><i></i></li>
+                    </ul>
+                </dd>
+        </dl>
+		<dl class="leftmenu">                
+                 <dd>
+                    <div class="title">
+                        <span>
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>账目管理
+                    </div>
+                    <ul class="menuson">
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">收入管理</a><i></i></li>
+                    </ul>
+                </dd>
+        </dl>
+		<dl class="leftmenu">                
+                <dd>
+                    <div class="title">
+                        <span>
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>还款方式
+                    </div>
+                    <ul class="menuson">
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">等额本息</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">等本等息</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">等额本金</a><i></i></li>
+                    </ul>
+                </dd>
+        </dl>
+		<dl class="leftmenu">                
+                <dd>
+                    <div class="title">
+                        <span>
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>系统设置
+                    </div>
+                    <ul class="menuson">
+                            <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">权限管理</a><i></i></li>
+                    </ul>
+                </dd>
+		</dl>
     </div>
 </body>
 </html>

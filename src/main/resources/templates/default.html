@@ -1,17 +1,108 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>升通保理管理平台</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    
+    <style>
+        .Detail {
+            border-bottom: 1px #A4D9EB solid;
+            border-right: 1px #A4D9EB solid;
+            background: #FFF;
+            text-align: center;
+            width: 100%;
+        }
+
+            .Detail th {
+                font-weight: 100;
+                background: #EDF6FA;
+                color: #000;
+                border-top: 1px #A4D9EB solid;
+                border-left: 1px #A4D9EB solid;
+                padding: 5px 0;
+                width: 40px;
+                height: 24px;
+                text-align: right;
+                padding-right: 20px;
+            }
+
+            .Detail td {
+                text-indent: 20px;
+                border-top: 1px #A4D9EB solid;
+                border-left: 1px #A4D9EB solid;
+                padding: 5px 0;
+                width: 180px;
+                text-align: left;
+            }
+    </style>
+
 </head>
-<frameset rows="88,*,31" cols="*" frameborder="no" border="0" framespacing="0" style="background-color: rgb(204, 232, 207);">
-    <frame src="http://office.le1bao.com/home/top" name="topFrame" scrolling="No" noresize="noresize" id="topFrame" title="topFrame">
-    <frameset cols="187,*" frameborder="no" border="0" framespacing="0" id="middleFrame">
-        <frame src="http://office.le1bao.com/home/left" name="leftFrame" scrolling="Yes" noresize="noresize" id="leftFrame" title="leftFrame">
-        <frame src="http://office.le1bao.com/home/default" name="rightFrame" id="rightFrame" title="rightFrame">
-    </frameset>
-    <frame src="http://office.le1bao.com/home/footer" name="bottomFrame" scrolling="No" noresize="noresize" id="bottomFrame" title="bottomFrame">
-</frameset>
+
+
+<body>
+
+    <div class="place">
+        <span>您的位置：</span>
+        <ul class="placeul">
+            <li><a href="/MavenSSM/home/default">首页</a></li>
+        </ul>
+    </div>
+
+    <div class="mainindex">
+        <div class="welinfo">
+            <span><img th:attr="src=@{/images/sun.png}" alt="天气" /></span>
+            <b>bank1 您好，欢迎使用升通保理管理平台</b>
+        </div>
+        <div class="welinfo">
+            <span><img th:attr="src=@{/images/time.png}" alt="时间" /></span>
+            <i>您本次登录时间：2018-6-28 星期四</i>
+            <i>登录IP地址：182.106.215.98</i>
+        </div>
+        <div class="xline"></div>
+        <div class="ibox">
+
+
+            <table cellpadding="0" cellspacing="1" class="Detail">
+                <tr>
+                    <th>操作系统</th>
+                    <td>
+                        Microsoft Windows NT 6.1.7601 Service Pack 1
+
+                    </td>
+                </tr>
+                <tr><th>系统文件夹</th><td>C:\Windows\system32  </td></tr>
+                <tr><th>程序物理内存</th><td>69292  </td></tr>
+                <tr><th>程序文件夹</th><td>C:\Windows\SysWOW64\inetsrv </td></tr>
+                <tr><th>主机的网络域名</th><td>IIS APPPOOL  </td></tr>
+                <tr><th>系统启动时间</th><td>223460 </td></tr>
+                <tr><th>机器名称</th><td>L1B-WEB-01  <a href="/Finance/test" target="_blank">&nbsp;&nbsp;</a>-<a href="/content/assets/left.html" target="_blank">&nbsp;&nbsp;</a></td></tr>
+                <tr><th>当前进程的用户</th><td>office.chengjr.com </td></tr>
+                <tr><th>系统进程数</th><td>8 </td></tr>
+                <tr><th>ServerIP</th><td>172.17.63.17 </td></tr>
+                <tr><th>ClientIp</th><td>182.106.215.98 </td></tr>
+                <tr><th>是否本地</th><td>不是  </td></tr>
+                <tr>
+                    <th>登录用户</th>
+                    <td>
+                        1000  - wangzy  -bank
+
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        
+
+
+        
+
+    </div>
+
+
+
+</body>
 
 </html>

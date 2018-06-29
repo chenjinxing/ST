@@ -29,6 +29,20 @@
     from partnertype
     where typeId = #{typeid,jdbcType=INTEGER}
   </select>
+  <select id="selectPartnertypeSelective" parameterType="com.example.demo.entity.Partnertype" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from partnertype
+    <where>
+      <if test="typeid != null">
+        typeid = #{typeid,jdbcType=INTEGER} and 
+      </if>
+      <if test="typename != null">
+        typename = #{typename,jdbcType=VARCHAR} and 
+      </if>
+      0 =0
+    </where>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated
