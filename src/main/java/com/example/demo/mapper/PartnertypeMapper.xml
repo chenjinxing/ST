@@ -50,25 +50,31 @@
     from partnertype
     <where>
       <if test="record.typeid != null">
-        partnerId = #{record.typeid,jdbcType=INTEGER} and 
+        typeid = #{record.typeid,jdbcType=INTEGER} and 
       </if>
       <if test="record.typename != null">
-        appBatchId = #{record.typename,jdbcType=VARCHAR} and 
+        typename = #{record.typename,jdbcType=VARCHAR} and 
+      </if>
+      <if test="search != null">
+        locate(#{search,jdbcType=VARCHAR},typename) >0 and 
       </if>
       0 =0
     </where>
     limit #{start,jdbcType=INTEGER},#{size,jdbcType=INTEGER}
   </select>
-  <select id="selectCountSelective" parameterType="com.example.demo.entity.Partnertype" resultType="java.lang.Integer">
+  <select id="selectCountSelective" resultType="java.lang.Integer">
     select 
     count(*)
     from partnertype
     <where>
-      <if test="typeid != null">
-        typeid = #{typeid,jdbcType=INTEGER} and 
+      <if test="record.typeid != null">
+        typeid = #{record.typeid,jdbcType=INTEGER} and 
       </if>
-      <if test="typename != null">
-        typename = #{typename,jdbcType=VARCHAR} and 
+      <if test="record.typename != null">
+        typename = #{record.typename,jdbcType=VARCHAR} and 
+      </if>
+      <if test="search != null">
+        locate(#{search,jdbcType=VARCHAR},typename) >0 and 
       </if>
       0 =0
     </where>

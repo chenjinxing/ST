@@ -77,10 +77,10 @@ public class PartnertypeService {
 		return "{\"result\":-1,\"count\":0,\"notice\":\"error\",\"data\":[]}";
 	}
 	//根据查询条件查询 返回Json数据
-	public String selectByConditionJson(Partnertype record,int start,int size)
+	public String selectByConditionJson(Partnertype record,String search,int start,int size)
 	{
-		List<Partnertype> data =partnertypeMapper.selectSelectivePaging(record, start, size);
-		int countAll =partnertypeMapper.selectCountSelective(record);
+		List<Partnertype> data =partnertypeMapper.selectSelectivePaging(record, search,start, size);
+		int countAll =partnertypeMapper.selectCountSelective(record,search);
 		//打包数据
 		CI_RtnPartnertypeData rtn =new CI_RtnPartnertypeData();
 		rtn.setResult(1);

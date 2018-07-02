@@ -53,14 +53,15 @@ class PartnerPostController extends BaseController{
 	
 	@RequestMapping("/data")
 	@ResponseBody
-	public String data(Integer limit, Integer offset, String typeid, String typename) {
+	public String data(Integer limit, Integer offset, String search,String typeid, String typename) {
 		Partnertype partnertype =new Partnertype();
 		//条件
-		if(null !=typeid)
+		if(null !=typeid && !typeid.equals(""))
 			partnertype.setTypeid(Integer.parseInt(typeid));
-		partnertype.setTypename(typename);
+		if(null !=typename && !typename.equals(""))
+			partnertype.setTypename(typename);
 		
-		return partnertypeService.selectByConditionJson(partnertype,offset,limit);
+		return partnertypeService.selectByConditionJson(partnertype,search,offset,limit);
 		//return cI_ReqPartnertype.doAction(1,"1", "CI_ReqPartnertype", 1, "{}");
 	}
 	
