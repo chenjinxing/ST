@@ -56,7 +56,12 @@
                 this.operateDelete();
                 this.DepartmentModel = {
                     typeid : ko.observable(),  //和标签中的data-bind  对应
-                    typename : ko.observable()
+                    typename : ko.observable(),
+                    partnerid : ko.observable(),
+                    name : ko.observable(),
+                    abbreviation : ko.observable(),
+                    partnercode : ko.observable(),
+                    partnerkey : ko.observable()
                 };
             },
             // 新增
@@ -68,9 +73,14 @@
                                     "shown.bs.modal",
                                     function() {
                                         var oEmptyModel = {
-                                             typeid : ko.observable(),
-                                             typename : ko.observable()
-                                        };
+                                                typeid : ko.observable(),  //和标签中的data-bind  对应
+                                                typename : ko.observable(),
+                                                partnerid : ko.observable(),
+                                                name : ko.observable(),
+                                                abbreviation : ko.observable(),
+                                                partnercode : ko.observable(),
+                                                partnerkey : ko.observable()
+                                            };
                                         ko.utils.extend(operate.DepartmentModel,
                                                 oEmptyModel);
                                         ko.applyBindings(operate.DepartmentModel,
@@ -119,15 +129,15 @@
                             } else {
                                 //var b = JSON.stringify(arrselectedData);
                                 //var typeid =b[0].typeid;
-                                var typeid =arrselectedData[0].typeid;
+                                var partnerid =arrselectedData[0].partnerid;
                                 $.ajax({
-                                    url : "/MavenSSM/Partner/partnerTypeDelete",
+                                    url : "/MavenSSM/Partner/partnerDelete",
                                     type : "post",
                                     data : {
-                                        "id" : typeid
+                                        "id" : partnerid
                                     },
                                     error: function () {
-                                    	alert("删除失败 该类型可能正在被使用");
+                                    	alert("删除失败 该企业可能正在被使用");
                                     },
                                     success : function(status) {
                                         alert(status);
@@ -145,22 +155,38 @@
                     // 将Viewmodel转换为数据model
                     var oDataModel = ko.toJS(oViewModel);
                     //根据有没有typeid 判断是增加还是更新
-                  	var actionName = oDataModel.typeid?"partnerTypeUpdate":"partnerTypeAdd";
+                  	var actionName = oDataModel.partnerid?"partnerUpdate":"partnerAdd";
                     
-                    if (oDataModel.typename == undefined || oDataModel.typename.trim() == "") {
-                        alert("名称不能为空");
-                    } else {
-                        var span = $("#span").html();
-                        $.ajax({
-                            url : "/MavenSSM/Partner/"+actionName,  //url
-                            type : "post",
-                            data : oDataModel,
-                            success : function(status) {
-                                alert(status);
-                                $("#tb_departments").bootstrapTable('refresh');
-                            }
-                        });
+                    if (oDataModel.typeid == undefined || oDataModel.typeid.trim() == ""|| oDataModel.typeid.trim() == "-1") {
+                        alert("企业类型不能为空");
+                        return;
                     }
+                    if (oDataModel.name == undefined || oDataModel.name.trim() == "") {
+                        alert("企业名称不能为空");
+                        return;
+                    }
+                    if (oDataModel.abbreviation == undefined || oDataModel.abbreviation.trim() == "") {
+                        alert("企业简称不能为空");
+                        return;
+                    }
+                    if (oDataModel.partnercode == undefined || oDataModel.partnercode.trim() == "") {
+                        alert("企业代码不能为空");
+                        return;
+                    }
+                    if (oDataModel.partnerkey == undefined || oDataModel.partnerkey.trim() == "") {
+                        alert("企业秘钥不能为空");
+                        return;
+                    }
+                     var span = $("#span").html();
+                     $.ajax({
+                         url : "/MavenSSM/Partner/"+actionName,  //url
+                         type : "post",
+                         data : oDataModel,
+                         success : function(status) {
+                             alert(status);
+                             $("#tb_departments").bootstrapTable('refresh');
+                         }
+                     });
                 });
             },
             // 数据校验
@@ -193,7 +219,7 @@
                 	    //}
                 	};
                 $('#tb_departments').bootstrapTable({
-                    url: '/MavenSSM/Partner/partnerTypeData/',         //请求后台的URL（*）
+                    url: '/MavenSSM/Partner/partnerData/',         //请求后台的URL（*）
                     method: 'post',                      //请求方式（*）
                     contentType:"application/x-www-form-urlencoded",
                     toolbar: '#toolbar',                //工具按钮用哪个容器
@@ -215,11 +241,11 @@
                     minimumCountColumns: 2,             //最少允许的列数
                     clickToSelect: true,                //是否启用点击选中行
                     height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
-                    uniqueId: "typeid",                     //每一行的唯一标识，一般为主键列
+                    uniqueId: "partnerid",                     //每一行的唯一标识，一般为主键列
                     
                     //showExport: true,                    
                     //exportDataType: 'all',
-                    //exportTypes:[ 'csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],  //导出文件类型
+                    //exportTypes:[ 'csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],  //导出文件企业
                     
                     showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
                     cardView: false,                    //是否显示详细视图
@@ -228,19 +254,34 @@
                     columns: [{
                         checkbox: true
                     },  {
-                        field: 'typeid',
-                        title: '类型Id'
-                    }, {
+                    //    field: 'typeid',
+                    //    title: '企业类型Id'
+                    //}, {
                         field: 'typename',
-                        title: '类型描述'
-                    } 
-                    //,{
-                    //    field: 'operation',
-                    //    title: '操作',
-                    //    align: 'center',
+                        title: '企业类型描述'
+                    },{
+                        field: 'partnerid',
+                        title: '企业ID'
+                    },{
+                        field: 'name',
+                        title: '企业名'
+                    },{
+                        field: 'abbreviation',
+                        title: '企业简称'
+                    },{
+                        field: 'partnercode',
+                        title: '企业代码'
+                    },{
+                        field: 'partnerkey',
+                        title: '企业秘钥'
+                    },
+                    {
+                        field: 'operation',
+                        title: '操作',
+                        align: 'center',
                     //    events:operateEvents,//给按钮注册事件
                     //    formatter:addFunctionAlty//表格中增加按钮
-                    //}
+                    }
                     ]
                 });
             };
@@ -251,7 +292,10 @@
                     offset: params.offset,  //页码
                     search: params.search, //搜索
                     typeid: $("#typeid").val(),
-                    typename: $("#typename").val()
+                    partnerid: $("#partnerid").val(),
+                    name: $("#name").val(),
+                    abbreviation: $("#abbreviation").val(),
+                    partnercode: $("#partnercode").val()
                 };
                 return temp;
             };
@@ -279,48 +323,46 @@
             return oTableInit;
         };
 
-        function ajaxTest()
-        {
-        	$.ajax({
-                type: "post",
-                url: "/MavenSSM/Partner/partnerTypeData/",
-                data: "id=1231",
-                error: function () {
-                    layer.close(indexWait);
-                    layer.alert("网络传输错误,请稍后再试,谢谢.");
-                },
-                beforeSend: function () {
-                    indexWait = layer.load(0, { shade: [0.6, '#bbb'] });
-                },
-                success: function (json) {
-                    layer.close(indexWait);
-                    var jsonObject =json;
-                    if (json.result == true) {
-                    }
-                }
-            });
-        }
-
     </script>
 </head>
 
 <body>
-
 	<div class="panel-body" style="padding-bottom:0px;">
-	
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title" id="myModalLabel">类型增加</h4>
+                        <h4 class="modal-title" id="myModalLabel">企业增加</h4>
                     </div>
                     <div class="modal-body">
  
                         <div class="form-group">
-                            <label for="txt_departmentname">类型名称</label>
-                            <input type="text" name="txt_departmentname" data-bind="value:typename" class="form-control" id="txt_departmentname" placeholder="类目名称">
+                            <label for="typeid">企业类型</label>
+                            <select class="form-control" name="txt_typeid" data-bind="value:typeid" id="txt_typeid">
+		                        <option value =-1>请选择类型</option>
+		                        <option th:each="list:${session.types}" th:value="${list.typeid}" th:text="${list.typename}"></option>
+	                    	</select>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="name">企业名称</label>
+                            <input type="text" name="name" data-bind="value:name" class="form-control" id="txt_name" placeholder="企业名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="abbreviation">企业简称</label>
+                            <input type="text" name="abbreviation" data-bind="value:abbreviation" class="form-control" id="txt_abbreviation" placeholder="企业简称">
+                        </div>
+                        <div class="form-group">
+                            <label for="partnercode">企业代码</label>
+                            <input type="text" name="partnercode" data-bind="value:partnercode" class="form-control" id="txt_partnercode" placeholder="企业代码">
+                        </div>
+                        <div class="form-group">
+                            <label for="partnerkey">企业秘钥</label>
+                            <input type="text" name="partnerkey" data-bind="value:partnerkey" class="form-control" id="txt_partnerkey" placeholder="企业秘钥">
+                        </div>
+                        
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
                         <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
@@ -335,14 +377,39 @@
             <div class="panel-body">
                 <form id="formSearch" class="form-horizontal">
                     <div class="form-group" style="margin-top:15px">
-                        <label class="control-label col-sm-1" for="condition_search_typeid">类型ID</label>
+                    	
+                    	<label class="control-label col-sm-1" for="typeid">企业类型</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" name="typeid"  id="typeid">
+		                        <option value ="-1">请选择类型</option>
+		                        <option th:each="list:${session.types}" th:value="${list.typeid}" th:text="${list.typename}"></option>
+	                    	</select>
+                         </div>
+                        <label class="control-label col-sm-1" for="partnerid">企业ID</label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="typeid">
+                            <input type="text" class="form-control" id="partnerid">
                         </div>
-                        <label class="control-label col-sm-1" for="condition_search_typename">类型描述</label>
+                        
+                        <label class="control-label col-sm-1" for="name">企业名</label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="typename">
+                            <input type="text" class="form-control" id="name">
                         </div>
+                       
+                        <label class="control-label col-sm-1" for="abbreviation">企业简称</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="abbreviation">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="partnercode">企业代码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="partnercode">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="partnerkey">企业秘钥</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="partnerkey">
+                        </div>
+                        
                         <div class="col-sm-4" style="text-align:left;">
                             <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
                         </div>

@@ -1,3 +1,16 @@
+fdfs:
+  soTimeout: 1500
+  connectTimeout: 600
+  thumbImage:             #缩略图生成参数
+    width: 150
+    height: 150
+  trackerList:            #TrackerList参数,支持多个
+    - 192.168.1.29:22122
+    
+logging:
+  level:
+    com.example.demo.mapper: debug
+
 server:
   servlet:
     context-path: /MavenSSM

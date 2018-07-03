@@ -1,10 +1,12 @@
-package com.example.demo.shrio;
+package com.example.demo.conf;
 
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.example.demo.shrio.MyRealm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

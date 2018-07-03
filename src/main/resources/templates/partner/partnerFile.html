@@ -21,8 +21,22 @@
    <!-- js knockout 增删改查 插件 -->
 	<script th:attr="src=@{/js/knockout-3.4.2.js}"></script>
 	<script th:attr="src=@{/js/knockout.mapping.js}"></script>    
+	
+	<script th:attr="src=@{/js/fileinput.min.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/fileinput.min.css}" />
 
     <script type="text/javascript">
+    	var dirs=new Array();//全局变量
+    	dirs[0] =0;
+     	//打开目录或文件
+        function refreshDir(fileid,type) {
+        	if (type =='目录') {
+        		dirs[dirs.length] =fileid; //进入目录 增加记录
+        		$("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
+        	} else {
+            	//打开/下载文件 图片/文本 直接打开 ，其他文件下载
+        	}
+        }
         $(function () {
         	//初始化
             operate.operateInit();
@@ -39,6 +53,19 @@
             	// 插入数据
                 $("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
             });
+            $("#btn_lastDir").click(function () {
+            	// 上层目录
+            	dirs.pop();
+                $("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
+            });
+            $("#btn_rootDir").click(function () {
+            	currentFatherId =0;
+            	// 根目录
+            	dirs.length = 0;
+            	dirs[0] =0;
+                $("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
+            });
+            
 
         });
         var tableInit ={
@@ -55,8 +82,16 @@
                 this.operateUpdate();
                 this.operateDelete();
                 this.DepartmentModel = {
-                    typeid : ko.observable(),  //和标签中的data-bind  对应
-                    typename : ko.observable()
+                		fileid : ko.observable(),  //和标签中的data-bind  对应
+                		fatherid : ko.observable(),
+                		filename : ko.observable(),
+                		abbreviation : ko.observable(),
+                		permission : ko.observable(),
+                		saveposition : ko.observable(),
+                		size : ko.observable(),
+                		typeid : ko.observable(),
+                		updatetime : ko.observable(),
+                		uploaduser : ko.observable()
                 };
             },
             // 新增
@@ -68,9 +103,17 @@
                                     "shown.bs.modal",
                                     function() {
                                         var oEmptyModel = {
-                                             typeid : ko.observable(),
-                                             typename : ko.observable()
-                                        };
+                                        		fileid : ko.observable(),  //和标签中的data-bind  对应
+                                        		fatherid : ko.observable(),
+                                        		filename : ko.observable(),
+                                        		abbreviation : ko.observable(),
+                                        		permission : ko.observable(),
+                                        		saveposition : ko.observable(),
+                                        		size : ko.observable(),
+                                        		typeid : ko.observable(),
+                                        		updatetime : ko.observable(),
+                                        		uploaduser : ko.observable()
+                                            };
                                         ko.utils.extend(operate.DepartmentModel,
                                                 oEmptyModel);
                                         ko.applyBindings(operate.DepartmentModel,
@@ -119,15 +162,15 @@
                             } else {
                                 //var b = JSON.stringify(arrselectedData);
                                 //var typeid =b[0].typeid;
-                                var typeid =arrselectedData[0].typeid;
+                                var partnerFileid =arrselectedData[0].partnerFileid;
                                 $.ajax({
-                                    url : "/MavenSSM/Partner/partnerTypeDelete",
+                                    url : "/MavenSSM/Partner/partnerFileDelete",
                                     type : "post",
                                     data : {
-                                        "id" : typeid
+                                        "id" : partnerFileid
                                     },
                                     error: function () {
-                                    	alert("删除失败 该类型可能正在被使用");
+                                    	alert("删除失败 该文件可能正在被使用");
                                     },
                                     success : function(status) {
                                         alert(status);
@@ -144,23 +187,31 @@
                     var oViewModel = operate.DepartmentModel;
                     // 将Viewmodel转换为数据model
                     var oDataModel = ko.toJS(oViewModel);
-                    //根据有没有typeid 判断是增加还是更新
-                  	var actionName = oDataModel.typeid?"partnerTypeUpdate":"partnerTypeAdd";
+                    //根据有没有  判断是增加还是更新 更新只能更新权限等 内容无法更新 类型也无法更新
+                  	var actionName = oDataModel.fileid?"partnerFileUpdate":"partnerFileAdd";
                     
-                    if (oDataModel.typename == undefined || oDataModel.typename.trim() == "") {
-                        alert("名称不能为空");
-                    } else {
-                        var span = $("#span").html();
-                        $.ajax({
-                            url : "/MavenSSM/Partner/"+actionName,  //url
-                            type : "post",
-                            data : oDataModel,
-                            success : function(status) {
-                                alert(status);
-                                $("#tb_departments").bootstrapTable('refresh');
-                            }
-                        });
+                    if (oDataModel.typeid == undefined || oDataModel.typeid.trim() == ""|| oDataModel.typeid.trim() == "-1") {
+                        alert("文件类型不能为空");
+                        return;
                     }
+                    if (oDataModel.abbreviation == undefined || oDataModel.abbreviation.trim() == "") {
+                        alert("简述不能为空");
+                        return;
+                    }
+                    if (oDataModel.permission == undefined || oDataModel.permission.trim() == "") {
+                        alert("权限不能为空");
+                        return;
+                    }
+                     var span = $("#span").html();
+                     $.ajax({
+                         url : "/MavenSSM/Partner/"+actionName,  //url
+                         type : "post",
+                         data : oDataModel,
+                         success : function(status) {
+                             alert(status);
+                             $("#tb_departments").bootstrapTable('refresh');
+                         }
+                     });
                 });
             },
             // 数据校验
@@ -193,7 +244,7 @@
                 	    //}
                 	};
                 $('#tb_departments').bootstrapTable({
-                    url: '/MavenSSM/Partner/partnerTypeData/',         //请求后台的URL（*）
+                    url: '/MavenSSM/Partner/partnerFileData/',         //请求后台的URL（*）
                     method: 'post',                      //请求方式（*）
                     contentType:"application/x-www-form-urlencoded",
                     toolbar: '#toolbar',                //工具按钮用哪个容器
@@ -215,11 +266,11 @@
                     minimumCountColumns: 2,             //最少允许的列数
                     clickToSelect: true,                //是否启用点击选中行
                     height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
-                    uniqueId: "typeid",                     //每一行的唯一标识，一般为主键列
+                    uniqueId: "partnerFileid",                     //每一行的唯一标识，一般为主键列
                     
                     //showExport: true,                    
                     //exportDataType: 'all',
-                    //exportTypes:[ 'csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],  //导出文件类型
+                    //exportTypes:[ 'csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],  //导出文件文件
                     
                     showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
                     cardView: false,                    //是否显示详细视图
@@ -228,30 +279,56 @@
                     columns: [{
                         checkbox: true
                     },  {
-                        field: 'typeid',
-                        title: '类型Id'
-                    }, {
+                        field: 'fileid',
+                        title: 'Id'
+                    },{
+                        field: 'filename',
+                        title: '名称',
+                        formatter: function(value,row,index){
+    						// 使用转义即可解决单引号、双引号不够用的问题
+    						return "<a href='javascript:void(0);' onclick='refreshDir(\""+row.fileid+"\",\""+row.typename+"\")"+"'>"+value+"</a>";
+	    					},
+	    				styler: function(index,row){ 
+	    					var s1="";  
+	    		            if (row.typename=='目录'){  
+	    		            	return  s1 =  'background-color:#FFCCCC;';  
+	    		            }  
+	    				}
+                    },{
                         field: 'typename',
-                        title: '类型描述'
-                    } 
-                    //,{
-                    //    field: 'operation',
-                    //    title: '操作',
-                    //    align: 'center',
-                    //    events:operateEvents,//给按钮注册事件
-                    //    formatter:addFunctionAlty//表格中增加按钮
-                    //}
+                        title: '类型'
+                    },{
+                        field: 'abbreviation',
+                        title: '概述'
+                    },{
+                        field: 'permission',
+                        title: '权限'
+                    },{
+                        field: 'updatetime',
+                        title: '更新时间'
+                    },{
+                        field: 'size',
+                        title: '文件大小'
+                    },{
+                        field: 'uploadusername',
+                        title: '上传者'
+                    },{
+                        field: 'saveposition',
+                        title: '存储位置',
+                        align: 'center',
+                    }
                     ]
                 });
             };
             //得到查询的参数
             oTableInit.queryParams = function (params) {
-                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的 
                     limit: params.limit,   //
                     offset: params.offset,  //页码
                     search: params.search, //搜索
-                    typeid: $("#typeid").val(),
-                    typename: $("#typename").val()
+                    filename: $("#filename").val(),
+                    abbreviation: $("#abbreviation").val(),
+                    dir:dirs[dirs.length-1]
                 };
                 return temp;
             };
@@ -262,6 +339,7 @@
                     '<button id="btn_delete" class="btn btn-warning">删除</button>'
                 ].join('');
             }
+
             //处理接收到的json数据
             function responseHandler(res) {
             	if (res.result ==1) {
@@ -279,48 +357,41 @@
             return oTableInit;
         };
 
-        function ajaxTest()
-        {
-        	$.ajax({
-                type: "post",
-                url: "/MavenSSM/Partner/partnerTypeData/",
-                data: "id=1231",
-                error: function () {
-                    layer.close(indexWait);
-                    layer.alert("网络传输错误,请稍后再试,谢谢.");
-                },
-                beforeSend: function () {
-                    indexWait = layer.load(0, { shade: [0.6, '#bbb'] });
-                },
-                success: function (json) {
-                    layer.close(indexWait);
-                    var jsonObject =json;
-                    if (json.result == true) {
-                    }
-                }
-            });
-        }
-
     </script>
 </head>
 
 <body>
-
 	<div class="panel-body" style="padding-bottom:0px;">
-	
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title" id="myModalLabel">类型增加</h4>
+                        <h4 class="modal-title" id="myModalLabel">文件增加</h4>
                     </div>
                     <div class="modal-body">
  
                         <div class="form-group">
-                            <label for="txt_departmentname">类型名称</label>
-                            <input type="text" name="txt_departmentname" data-bind="value:typename" class="form-control" id="txt_departmentname" placeholder="类目名称">
+                            <label for="typeid">文件类型</label>
+                            <select class="form-control" name="txt_typeid" data-bind="value:typeid" id="txt_typeid">
+		                        <option value =0>目录</option>
+		                        <option value =1>文件</option>
+	                    	</select>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="abbreviation">简述</label>
+                            <input type="text" name="abbreviation" data-bind="value:abbreviation" class="form-control" id="txt_abbreviation" placeholder="文件简称">
+                        </div>
+                        <div class="form-group">
+                            <label for="permission">权限</label>
+                            <input type="text" name="permission" data-bind="value:permission" class="form-control" id="txt_permission" placeholder="文件权限" value="777">
+                        </div>
+                        <div class="form-group">
+                            <label for="upload">上传</label>
+                            <input id="upload" type="file" class="file" />
+                        </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
                         <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
@@ -335,14 +406,17 @@
             <div class="panel-body">
                 <form id="formSearch" class="form-horizontal">
                     <div class="form-group" style="margin-top:15px">
-                        <label class="control-label col-sm-1" for="condition_search_typeid">类型ID</label>
+                    	
+                        <label class="control-label col-sm-1" for="filename">文件名</label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="typeid">
+                            <input type="text" class="form-control" id="filename">
                         </div>
-                        <label class="control-label col-sm-1" for="condition_search_typename">类型描述</label>
+                       
+                        <label class="control-label col-sm-1" for="abbreviation">文件概述</label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="typename">
+                            <input type="text" class="form-control" id="abbreviation">
                         </div>
+                        
                         <div class="col-sm-4" style="text-align:left;">
                             <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
                         </div>
@@ -362,7 +436,14 @@
             <button id="btn_delete" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
             </button>
-             
+            
+            <button id="btn_lastDir" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>上层目录
+            </button>
+            <button id="btn_rootDir" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>主目录
+            </button>            
+            
         </div>
         <table id="tb_departments"></table>
     </div>
