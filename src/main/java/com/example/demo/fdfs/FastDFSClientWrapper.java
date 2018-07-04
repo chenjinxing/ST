@@ -3,6 +3,7 @@ package com.example.demo.fdfs;
 import com.github.tobato.fastdfs.domain.FileInfo;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.exception.FdfsUnsupportStorePathException;
+import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,15 @@ public class FastDFSClientWrapper {
     public String uploadFile(MultipartFile file) throws IOException {
         StorePath storePath = storageClient.uploadFile(file.getInputStream(),file.getSize(), FilenameUtils.getExtension(file.getOriginalFilename()),null);
         return getResAccessUrl(storePath);
+    }
+    
+    //下载文件
+    public byte[] downloadFile(String fileUrl) throws IOException {
+        String group = fileUrl.substring(0, fileUrl.indexOf("/"));
+        String path = fileUrl.substring(fileUrl.indexOf("/") + 1);
+        DownloadByteArray downloadByteArray = new DownloadByteArray();
+        byte[] bytes = storageClient.downloadFile(group, path, downloadByteArray);
+        return bytes;
     }
 
     /**

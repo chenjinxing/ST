@@ -37,7 +37,18 @@
         		dirs[dirs.length] =fileid; //进入目录 增加记录
         		$("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
         	} else {
-            	//打开/下载文件 图片/文本 直接打开 ，其他文件下载
+            	//文件下载
+            	var url ="/MavenSSM/Partner/partnerFileDownload";
+            	var params ={
+                        "fileid" : fileid
+                };
+            	var form = $('<form method="POST" action="' + url + '">');
+	            $.each(params, function(k, v) {
+	                form.append($('<input type="hidden" name="' + k +
+	                        '" value="' + v + '">'));
+	            });
+	            $('body').append(form);
+	            form.submit(); //自动提交
         	}
         }
         $(function () {
@@ -373,6 +384,10 @@
                     },{
                         field: 'saveposition',
                         title: '存储位置',
+                        align: 'center',
+                    },{
+                        field: 'doaction',
+                        title: '下载',
                         align: 'center',
                     }
                     ]

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,6 +38,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 
 @Controller
@@ -247,6 +250,40 @@ class PartnerPostController extends BaseController{
 		//return cI_ReqPartner.doAction(1,"1", "CI_ReqPartner", 1, "{}");
 	}
 	
+	// 下载文件
+    @RequestMapping(value = "/partnerFileDownload", method = RequestMethod.POST)
+    public String partnerFileDownload(String fileid, HttpServletResponse response)
+    {
+    	String fail ="download partnerfile fail";
+    	String success ="download partnerfile success";
+    	Partnerfile partnerfile =partnerfileService.selectByPrimaryKey(Integer.parseInt(fileid));
+    	if(null ==partnerfile)
+    		return fail;
+    	if(1 ==partnerfile.getTypeid())
+    		return fail;
+    	String fileUrl =partnerfile.getSaveposition();
+    	
+    	ServletOutputStream outputStream = null;
+    	try {
+    		byte[] bytes =  dfsClient.downloadFile(fileUrl);
+    		response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(partnerfile.getFilename(), "UTF-8"));
+    		response.setCharacterEncoding("UTF-8");
+    		outputStream  = response.getOutputStream();
+    		outputStream.write(bytes);
+    	} catch (IOException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    		return fail;
+    	}finally {
+    		try {
+    			outputStream.flush();
+    			outputStream.close();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return success;
+    }
 	// 上传文件
     @RequestMapping(value = "/partnerFileAdd", method = RequestMethod.POST)
     public String partnerFileAdd(

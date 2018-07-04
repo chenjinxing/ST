@@ -71,4 +71,8 @@ public class PartnerfileService {
 	{
 		return partnerfileMapper.updateByPrimaryKeySelective(record);
 	}
+	public Partnerfile selectByPrimaryKey(int fileid)
+	{
+		return partnerfileMapper.selectByPrimaryKey(fileid);
+	}
 }
