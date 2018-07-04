@@ -38,6 +38,9 @@ public interface PartnerfileMapper {
      * @mbg.generated Tue Jul 03 14:58:55 CST 2018
      */
     Partnerfile selectByPrimaryKey(Integer fileid);
+    List<Partnerfile> selectChild(Integer fileid);
+    List<Integer> selectChildId(Integer fileid);
+    
     List<Partnerfile> selectSelectivePaging(@Param("record")Partnerfile record,@Param("search")String search,@Param("start")Integer start,@Param("size")Integer size);
     int selectCountSelective(@Param("record")Partnerfile record,@Param("search")String search);
 

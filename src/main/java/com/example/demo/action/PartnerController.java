@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,17 @@ import com.example.demo.api.CI_ReqUpdateOrderAll;
 import com.example.demo.entity.Partner;
 import com.example.demo.entity.Partnerfile;
 import com.example.demo.entity.Partnertype;
+import com.example.demo.entity.Stuser;
 import com.example.demo.fdfs.FastDFSClientWrapper;
 import com.example.demo.service.PartnerService;
 import com.example.demo.service.PartnerfileService;
 import com.example.demo.service.PartnertypeService;
+import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 @Controller
 @RequestMapping("/partner")
@@ -70,6 +76,9 @@ class PartnerPostController extends BaseController{
 	
 	@Resource
 	ApiManager apiManager;
+	
+	@Resource
+	UserService stuserService;
 	
 	@Resource
 	private CI_ReqPartnertype cI_ReqPartnertype;
@@ -240,16 +249,99 @@ class PartnerPostController extends BaseController{
 	
 	// 上传文件
     @RequestMapping(value = "/partnerFileAdd", method = RequestMethod.POST)
-    public String partnerFileAdd(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // 省略业务逻辑代码。。。
-    	String imgUrl ="fail";
-    	try{
-    		imgUrl = dfsClient.uploadFile(file);
-    	}catch(Exception e){
-    		return imgUrl;
+    public String partnerFileAdd(
+    		String fileid,
+    		String typeid,
+    		String filename,
+    		String abbreviation,
+    		String permission,
+    		Integer fatherid,
+    		MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	
+    	String fail ="add partnerfile fail";
+    	String success ="add partnerfile success";
+    	//now time
+    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+    	String updatetime =df.format(new Date());// new Date()为获取当前系统时间
+    	//current user
+    	String username=(String)SecurityUtils.getSubject().getPrincipal();
+    	Stuser user =stuserService.getByUsername(username);
+    	if(null ==user)
+    		return fail;
+    	int uploaduser =user.getId();
+    	Partnerfile partnerfile =new Partnerfile();
+    	if(typeid != null &&  !typeid.equals(""))
+    		partnerfile.setTypeid(Integer.parseInt(typeid));
+		partnerfile.setAbbreviation(abbreviation);
+    	partnerfile.setPermission(permission);
+    	partnerfile.setFatherid(fatherid);
+    	partnerfile.setUpdatetime(updatetime);
+    	partnerfile.setUploaduser(uploaduser);
+    	//目录 无上传动作
+    	if(1 ==partnerfile.getTypeid()){
+        	//目录名为空时 默认为描述   		
+    		if(filename ==null || filename=="" ||filename.compareTo("undefined") ==0)
+    			partnerfile.setFilename(abbreviation);
+    		else
+    			partnerfile.setFilename(filename);
+	    	partnerfile.setSize(0);
+	    	partnerfile.setSaveposition("");
     	}
-        return imgUrl;
+    	else {//文件 有上传动作
+    		String imgUrl ="";
+        	try{
+        		imgUrl = dfsClient.uploadFile(file);
+        	}catch(Exception e){
+        		return fail;
+        	}
+        	//文件名为空时 默认为原文件名
+        	if(filename ==null || filename==""|| filename.compareTo("undefined") ==0)
+    			partnerfile.setFilename(file.getOriginalFilename());
+    		else
+    			partnerfile.setFilename(filename);
+	    	partnerfile.setSize((int)file.getSize()/1024);
+	    	partnerfile.setSaveposition(imgUrl);
+    	}
+    	int rtn =partnerfileService.addFile(partnerfile);
+		if(0 ==rtn)
+			return fail;
+		return success;
     }
+    @RequestMapping("/partnerFileDelete")
+	@ResponseBody
+	public String partnerFileDelete(Integer id) {
+		// change row count [{"0":true,"typeid":2,"typename":"银行"},{"0":true,"typeid":3,"typename":"银行2"}]
+    	//删除数据库中的信息
+    	List<String> paths = new ArrayList<String>();
+		partnerfileService.deleteFile(id, paths);
+		//删除实际的数据
+		for(String path:paths)
+		{
+			dfsClient.deleteFile(path);
+		}
+		return "delete partner success";
+	}
+    @RequestMapping("/partnerFileUpdate")
+	@ResponseBody
+	public String partnerFileUpdate(
+			String fileid,
+    		String typeid,
+    		String filename,
+    		String abbreviation,
+    		String permission,
+    		Integer fatherid) {
+    	Partnerfile partnerfile =new Partnerfile();
+    	partnerfile.setFileid(Integer.parseInt(fileid));
+    	//只能修改文件名、概述、权限
+    	partnerfile.setFilename(filename);
+    	partnerfile.setAbbreviation(abbreviation);
+    	partnerfile.setPermission(permission);
+    	
+    	int rtn =partnerfileService.updateByPrimaryKey(partnerfile);
+		if(0 ==rtn)
+			return "update partner fail";
+		return "update partner success";
+	}
 }
 class PartnerTypeReq
 {}

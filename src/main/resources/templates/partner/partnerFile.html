@@ -25,6 +25,9 @@
 	<script th:attr="src=@{/js/fileinput.min.js}"></script>
 	<link rel="stylesheet" th:href="@{/css/fileinput.min.css}" />
 
+	<script th:attr="src=@{/js/bootstrapValidator.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/bootstrapValidator.css}" />
+
     <script type="text/javascript">
     	var dirs=new Array();//全局变量
     	dirs[0] =0;
@@ -55,7 +58,8 @@
             });
             $("#btn_lastDir").click(function () {
             	// 上层目录
-            	dirs.pop();
+            	if(dirs.length >1)
+            		dirs.pop();
                 $("#tb_departments").bootstrapTable('refresh');//刷新Table，Bootstrap Table 会自动执行重新查询
             });
             $("#btn_rootDir").click(function () {
@@ -79,6 +83,7 @@
             // 初始化按钮事件
             operateInit : function() {
                 this.operateAdd();
+                this.operateSave();
                 this.operateUpdate();
                 this.operateDelete();
                 this.DepartmentModel = {
@@ -93,6 +98,8 @@
                 		updatetime : ko.observable(),
                 		uploaduser : ko.observable()
                 };
+                ko.applyBindings(operate.DepartmentModel,
+                        document.getElementById("myModal"));
             },
             // 新增
             operateAdd : function() {
@@ -114,16 +121,26 @@
                                         		updatetime : ko.observable(),
                                         		uploaduser : ko.observable()
                                             };
+                                        //清空model数据
                                         ko.utils.extend(operate.DepartmentModel,
                                                 oEmptyModel);
-                                        ko.applyBindings(operate.DepartmentModel,
-                                                document.getElementById("myModal"));
-                                        operate.operateSave();
-                                    }).on('hidden.bs.modal', function() {
-                                ko.cleanNode(document.getElementById("myModal"));
-                            });
-                        });
-            },
+                                        //情况表格数据
+                                        //ko.applyBindings(operate.DepartmentModel,document.getElementById("myModal"));
+                                        $("#txt_typeid").val(0);
+                                        $("#txt_filename").val("");
+                                        $("#txt_abbreviation").val("");
+                                        $("#txt_permission").val("");
+                                        //$("#txt_file").val("");
+                                        $("#txt_typeid").attr('disabled',false);
+                                        
+                                        //$('#myModal').off().on("shown.bs.modal");
+                                        }).on('hidden.bs.modal', function() {
+                                        //	//$('#myModal').bootstrapValidator('resetForm');
+                                        //	$('#myModal').modal().off("shown","shown.bs.modal");
+                                        	$('#myModal').off().on("shown.bs.modal"); //清除注册的事件
+                                        });
+                        				});
+                        },
          	// 编辑  修改这里我没有做  如果需要的话  把弹出页面中input中的data-bind中value:name 换成value:你后台传来的变量名称                  
             operateUpdate : function() {
                 $('#btn_edit').on(
@@ -141,14 +158,22 @@
                                         // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
                                         ko.utils.extend(operate.DepartmentModel,
                                                 ko.mapping.fromJS(arrselectedData[0]));
-                                        ko.applyBindings(operate.DepartmentModel,
-                                                document.getElementById("myModal"));
-                                        operate.operateSave();
+                                        $("#txt_typeid").val(arrselectedData[0].typeid);
+                                        $("#txt_filename").val(arrselectedData[0].filename);
+                                        $("#txt_abbreviation").val(arrselectedData[0].abbreviation);
+                                        $("#txt_permission").val(arrselectedData[0].permission);
+                                        
+                                        //typeid 不可修改 只能修改名称、简述、权限
+                                        $("#txt_typeid").attr('disabled',true);
+                                        //$('#myModal').off().on("shown.bs.modal");
+                                        //$('#myModal').off().on("show","hidden.bs.modal");
                                     }).on('hidden.bs.modal', function() {
-                                // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
-                                ko.cleanNode(document.getElementById("myModal"));
-                            });
-                        });
+                                    	//$('#myModal').bootstrapValidator('resetForm');
+                                    	//$('#myModal').off.on("show","shown.bs.modal");
+                                    	$('#myModal').off().on("shown.bs.modal");
+                                    });
+                            
+                    				});
             },
             // 删除
             operateDelete : function() {  //当点击删除的时候  会进入这个方法
@@ -162,7 +187,7 @@
                             } else {
                                 //var b = JSON.stringify(arrselectedData);
                                 //var typeid =b[0].typeid;
-                                var partnerFileid =arrselectedData[0].partnerFileid;
+                                var partnerFileid =arrselectedData[0].fileid;
                                 $.ajax({
                                     url : "/MavenSSM/Partner/partnerFileDelete",
                                     type : "post",
@@ -189,8 +214,7 @@
                     var oDataModel = ko.toJS(oViewModel);
                     //根据有没有  判断是增加还是更新 更新只能更新权限等 内容无法更新 类型也无法更新
                   	var actionName = oDataModel.fileid?"partnerFileUpdate":"partnerFileAdd";
-                    
-                    if (oDataModel.typeid == undefined || oDataModel.typeid.trim() == ""|| oDataModel.typeid.trim() == "-1") {
+                    if (oDataModel.typeid == undefined || oDataModel.typeid == ""|| oDataModel.typeid == "0") {
                         alert("文件类型不能为空");
                         return;
                     }
@@ -202,11 +226,45 @@
                         alert("权限不能为空");
                         return;
                     }
+                  //使用 jquery.form.js ajaxSubmit 提交上传文件
+                    var option ={
+                        url : "/MavenSSM/Partner/"+actionName,  //url
+                        type : "post",
+                        //data : formData,
+                        //contentType: false,	//上传文件设置为false
+                        //cache: false,			//上传文件设置为false 不需要缓存
+                        success : function(status) {
+                            alert(status);
+                            $("#tb_departments").bootstrapTable('refresh');
+                        },
+                        error: function(data) {
+                            alert("操作失败");
+                        }
+                    };
+                    //$("#tb_departments").ajaxSubmit(option);
+                    //return false;
+                    
+                    //下面是html5的formdata方式提交
+                  	var formData = new FormData();
+                  	formData.append('fileid',oDataModel.fileid);
+                  	formData.append('typeid',oDataModel.typeid);
+                  	formData.append('filename',oDataModel.filename);
+                  	formData.append('abbreviation',oDataModel.abbreviation);
+                  	formData.append('permission',oDataModel.permission);
+                  	formData.append('fatherid',dirs[dirs.length-1]);
+                  	var f1 =$('#file');
+                  	var f2 =$('#file')[0];
+                  	var f1l =$('#file').length;
+                  	var f =$('#file')[0].files[0];
+                  	formData.append('file', f);
                      var span = $("#span").html();
                      $.ajax({
                          url : "/MavenSSM/Partner/"+actionName,  //url
                          type : "post",
-                         data : oDataModel,
+                         data : formData,
+                         contentType: false,	//上传文件设置为false
+                         processData: false,
+                         //cache: false,			//上传文件设置为false 不需要缓存
                          success : function(status) {
                              alert(status);
                              $("#tb_departments").bootstrapTable('refresh');
@@ -308,7 +366,7 @@
                         title: '更新时间'
                     },{
                         field: 'size',
-                        title: '文件大小'
+                        title: '大小(KB)'
                     },{
                         field: 'uploadusername',
                         title: '上传者'
@@ -372,24 +430,29 @@
                     <div class="modal-body">
  
                         <div class="form-group">
-                            <label for="typeid">文件类型</label>
+                            <label for="typeid">类型</label>
                             <select class="form-control" name="txt_typeid" data-bind="value:typeid" id="txt_typeid">
-		                        <option value =0>目录</option>
-		                        <option value =1>文件</option>
+                            	<option value =0>请选择类型</option>
+		                        <option value =1>目录</option>
+		                        <option value =2>文件</option>
 	                    	</select>
                         </div>
                         
                         <div class="form-group">
+                            <label for="txt_filename">名称</label>
+                            <input type="text" name="txt_filename" data-bind="value:filename" class="form-control" id="txt_filename" placeholder="不填默认为文件名(类型为目录时为描述)">
+                        </div>
+                        <div class="form-group">
                             <label for="abbreviation">简述</label>
-                            <input type="text" name="abbreviation" data-bind="value:abbreviation" class="form-control" id="txt_abbreviation" placeholder="文件简称">
+                            <input type="text" name="abbreviation" data-bind="value:abbreviation" class="form-control" id="txt_abbreviation" placeholder="简述">
                         </div>
                         <div class="form-group">
                             <label for="permission">权限</label>
-                            <input type="text" name="permission" data-bind="value:permission" class="form-control" id="txt_permission" placeholder="文件权限" value="777">
+                            <input type="text" name="permission" data-bind="value:permission" class="form-control" id="txt_permission" placeholder="权限  777" value="777">
                         </div>
                         <div class="form-group">
-                            <label for="upload">上传</label>
-                            <input id="upload" type="file" class="file" />
+                            <label for="file">上传</label>
+                            <input id="file" type="file" class="file" />
                         </div>
 
                     <div class="modal-footer">
