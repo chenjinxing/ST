@@ -20,6 +20,11 @@ public class PartnerService {
 
 	@Resource
 	private PartnerMapper partnerMapper;
+	
+	public Integer selectMainUser(Integer partnerId)
+	{
+		return partnerMapper.selectMainUser(partnerId);
+	}
 
 	public Partner selectByPartnerCode(String partnercode)
 	{

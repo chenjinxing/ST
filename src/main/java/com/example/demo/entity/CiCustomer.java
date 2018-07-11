@@ -1,10 +1,10 @@
 package com.example.demo.entity;
 
 
-//�ͻ���Ϣ
+//客户信息
 public class CiCustomer
 {
-  public String getName() {
+public String getName() {
 		return name;
 	}
 	public void setName(String name) {
@@ -88,18 +88,18 @@ public class CiCustomer
 	public void setLastloginIp(String lastloginIp) {
 		this.lastloginIp = lastloginIp;
 	}
-  private String name;//: "����", //����
-  private Integer credentialTypeId;//: 1, //֤������  1 ���֤
-  private String credentialId;//: "343131316643136436", //֤����
-  private String celphone;//: "13820080808", //�ֻ�����
-  private String appid;//: "123456789987465412",//�û���ƽ̨��Ψһ��ʶ	   
-  private Integer typeId;//: 1, // �ͻ����� 1 ���˿ͻ� ��2 ��ҵ�ͻ�
-  private Integer statusId;//: 1, //״̬ 1����
-  private String sex;//: "", //�Ա�
-  private String birthday;//: "1995-01-01", //����
-  private String mail;//: "12322333@gmail.com", //����
-  private String weixin;//: "12332121", //΢�ź�
-  private Integer loginTime;//: 12, //��¼����
-  private String lastlogintime;//: "2017-07-04 19;//:38;//:51",//����¼ʱ��
-  private String lastloginIp;//: "180.134.11.112", //����¼Ip
+private String name;//: "张三", //姓名
+private Integer credentialTypeId;//: 1, //证件类型  1 身份证
+private String credentialId;//: "343131316643136436", //证件号
+private String celphone;//: "13820080808", //手机号码
+private String appid;//: "123456789987465412",//用户在平台的唯一标识	   
+private Integer typeId;//: 1, // 客户类型 1 个人客户 ，2 企业客户
+private Integer statusId;//: 1, //状态 1正常
+private String sex;//: "", //性别
+private String birthday;//: "1995-01-01", //生日
+private String mail;//: "12322333@gmail.com", //邮箱
+private String weixin;//: "12332121", //微信号
+private Integer loginTime;//: 12, //登录次数
+private String lastlogintime;//: "2017-07-04 19;//:38;//:51",//最后登录时间
+private String lastloginIp;//: "180.134.11.112", //最后登录Ip
 }

@@ -7,9 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Stuser;
-import com.example.demo.entity.User;
 import com.example.demo.mapper.StuserMapper;
-import com.example.demo.mapper.UserMapper;
 
 @Service
 public class UserService {
@@ -25,7 +23,7 @@ public class UserService {
 		return user.getName();
 
 	}
-	//shiro ��֤���
+	//shiro 认证相关
     public Stuser getByUsername(String username){  
         return stuserMaper.getByUsername(username);  
 	}  

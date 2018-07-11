@@ -32,7 +32,7 @@ public class CI_ReqInsertOrder extends ApiBase {
 		// TODO Auto-generated method stub
 		//解析插入条件
 		CiOrder reqData;
-		ObjectMapper mapper = new ObjectMapper();  
+		ObjectMapper mapper = new ObjectMapper();
 		try {
 			reqData =mapper.readValue(req, CiOrder.class);
 		} catch (Exception e) {

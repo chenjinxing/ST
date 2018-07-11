@@ -76,12 +76,26 @@
                     </ul>
                 </dd>
         </dl>
+        <dl class="leftmenu">
+                <dd>
+                    <div class="title">
+                        <span>
+                            <img th:attr="src=@{/images/leftico01.png}" />
+                        </span>车贷管理
+                    </div>
+                    <ul class="menuson">
+                            <li><cite></cite><a th:href="@{/carLoan/clOrderInsert}" target="rightFrame" onclick="Show(this)">新增订单</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/carLoan/clOrderbaseSelect}" target="rightFrame" onclick="Show(this)">订单管理</a><i></i></li>
+                            <li><cite></cite><a th:href="@{/carLoan/clOrderbaseSelect}" target="rightFrame" onclick="Show(this)">资金明细</a><i></i></li>
+                    </ul>
+                </dd>
+        </dl>
  		<dl class="leftmenu">
                 <dd>
                     <div class="title">
                         <span>
                             <img th:attr="src=@{/images/leftico01.png}" />
-                        </span>订单管理
+                        </span>车险管理
                     </div>
                     <ul class="menuson">
                             <li><cite></cite><a th:href="@{/main}" target="rightFrame" onclick="Show(this)">批次管理</a><i></i></li>

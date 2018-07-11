@@ -33,6 +33,10 @@
     select p.*,t.typeName from partner p,partnertype t where p.typeId =t.typeId
     and partnerId = #{partnerid,jdbcType=INTEGER}
   </select>
+
+  <select id="selectMainUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select mainUser from Partner where partnerId = #{partnerid,jdbcType=INTEGER}
+  </select>
   <select id="selectByUniqueKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated

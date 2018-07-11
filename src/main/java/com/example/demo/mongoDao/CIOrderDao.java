@@ -1,5 +1,6 @@
 package com.example.demo.mongoDao;
 
+
 import java.util.List;
 
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,12 +14,11 @@ import com.example.demo.entity.CiCustomer;
 import com.example.demo.entity.CiInstallment;
 import com.example.demo.entity.CiOrder;
 
-
-@Repository("ciOrderDao")
+@Repository("iOrderDao")
 public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDao{
     
     /**  
-     * ����  
+     * 新增  
      * <br>------------------------------<br>  
      * @param Order  
      */   
@@ -27,7 +27,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.insert(order);  
     }
     /**  
-     * ��������  
+     * 批量新增  
      * <br>------------------------------<br>  
      * @param Orders  
      */  
@@ -36,7 +36,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.insertAll(orders);  
     }  
     /**  
-     * ɾ��,������id, ���������ֵΪnull,ɾ����ʧ��  
+     * 删除,按主键id, 如果主键的值为null,删除会失败  
      * <br>------------------------------<br>  
      * @param id  
      */  
@@ -46,7 +46,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.remove(order);  
     }  
     /**  
-     * ������ɾ��  
+     * 按条件删除  
      * <br>------------------------------<br>  
      * @param criteriaOrder  
      */  
@@ -56,7 +56,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.remove(query, CiOrder.class);  
     }  
     /**  
-     * ɾ��ȫ��  
+     * 删除全部  
      * <br>------------------------------<br>  
      */  
     public void deleteAll() {  
@@ -64,8 +64,8 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.dropCollection(CiOrder.class);  
     }  
     /**  
-     * �������޸�,  
-     * ����ĵ���û�����key ������ ʹ��$set�޸���  
+     * 按主键修改,  
+     * 如果文档中没有相关key 会新增 使用$set修改器  
      * <br>------------------------------<br>  
      * @param Order  
      */  
@@ -77,7 +77,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         mongoTemplate.updateFirst(query, update, CiOrder.class);
     }  
     /**  
-     * �޸Ķ���  
+     * 修改多条  
      * <br>------------------------------<br>  
      * @param criteriaOrder  
      * @param Order  
@@ -90,9 +90,9 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
     }  
     public void updateInstallment(CiOrder criteriaOrder, CiInstallment installment,int installmentno)
     {
-		//��ɾ��
+		//先删除
     	deleteInstallment(criteriaOrder, installment, installmentno);
-		//������
+		//后增加
 		insertInstallment(criteriaOrder, installment, installmentno);
     }
     public void insertInstallment(CiOrder criteriaOrder, CiInstallment installment,int installmentno)
@@ -114,7 +114,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
 		mongoTemplate.updateFirst(query, update, CiOrder.class);
     }
     /**  
-     * ����������ѯ  
+     * 根据主键查询  
      * <br>------------------------------<br>  
      * @param id  
      * @return  
@@ -124,7 +124,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         return mongoTemplate.findById(id, CiOrder.class);  
     }  
     /**  
-     * ��ѯȫ��  
+     * 查询全部  
      * <br>------------------------------<br>  
      * @return  
      */  
@@ -133,7 +133,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         return mongoTemplate.findAll(CiOrder.class);  
     }  
     /**  
-     * ��������ѯ, ��ҳ  
+     * 按条件查询, 分页  
      * <br>------------------------------<br>  
      * @param criteriaOrder  
      * @param skip  
@@ -148,10 +148,10 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         return mongoTemplate.find(query, CiOrder.class);  
     }  
     /**  
-     * ����������ѯ������ ��ȥ�޸�  
+     * 根据条件查询出来后 再去修改  
      * <br>------------------------------<br>  
-     * @param criteriaOrder  ��ѯ����  
-     * @param updateOrder    �޸ĵ�ֵ����  
+     * @param criteriaOrder  查询条件  
+     * @param updateOrder    修改的值对象  
      * @return  
      */  
     public CiOrder findAndModify(CiOrder criteriaOrder, CiOrder updateOrder) {  
@@ -161,7 +161,7 @@ public class CIOrderDao extends AbstractBaseMongoTemplete  implements ICIOrderDa
         return mongoTemplate.findAndModify(query, update, CiOrder.class);  
     }  
     /**  
-     * ��ѯ������ ɾ��  
+     * 查询出来后 删除  
      * <br>------------------------------<br>  
      * @param criteriaOrder  
      * @return  

@@ -2,6 +2,8 @@ package com.example.demo.mapper;
 
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.example.demo.entity.Stuser;
 
 
@@ -38,7 +40,7 @@ public interface StuserMapper {
      * @mbg.generated Tue Apr 03 09:28:30 CST 2018
      */
     Stuser selectByPrimaryKey(Integer id);
-    Stuser selectByNamePassword(String name,String password);
+    Stuser selectByNamePassword(@Param("name")String name,@Param("password")String password);
     
 	public Stuser getByUsername(String username);  
 	  

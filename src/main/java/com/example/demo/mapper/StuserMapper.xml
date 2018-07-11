@@ -30,7 +30,7 @@
     select 
     <include refid="Base_Column_List" />
     from stuser
-    where name = #{0} and password=#{1}
+    where name = #{name} and password=#{password}
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
@@ -44,8 +44,10 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
   
-   <select id="getByUsername" parameterType="String" resultType="com.example.demo.entity.Stuser">  
-        select * from stuser where name=#{username}  
+   <select id="getByUsername" parameterType="String" resultMap="BaseResultMap">  
+        select 
+        <include refid="Base_Column_List" />
+        from stuser where name=#{username}  
     </select>  
   
     <select id="getRoles" parameterType="String" resultType="String">  

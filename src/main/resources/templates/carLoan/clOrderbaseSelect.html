@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>升通保理管理平台</title>
+     <!-- *1、Jquery组件引用* -->
+    <script th:attr="src=@{/js/jquery-1.10.2.min.js}"></script>
+
+    <!--@*2、bootstrap组件引用*@-->
+    <script th:attr="src=@{/js/bootstrap.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}" />
+    
+    <!--@*3、bootstrap table组件以及中文包的引用*@-->
+    <script th:attr="src=@{/js/bootstrap-table.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-table.css}" />
+    <script th:attr="src=@{/js/bootstrap-table-zh-CN.js}"></script>
+    
+    <!--@*4、页面Js文件的引用*@-->
+    
+   <!-- js knockout 增删改查 插件 -->
+	<script th:attr="src=@{/js/knockout-3.4.2.js}"></script>
+	<script th:attr="src=@{/js/knockout.mapping.js}"></script>    
+
+    <script type="text/javascript">
+        $(function () {
+
+        	//初始化
+        	document.getElementById("OrderdataDiv").style.display="none";//隐藏
+        	
+            operate.operateInit();
+            ko.applyBindings(operate.custData,document.getElementById("form_custData"));
+            ko.applyBindings(operate.spoust,document.getElementById("form_spoust"));
+            ko.applyBindings(operate.proInfo,document.getElementById("form_proInfo"));
+            
+        	//1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+            var updateProId =-1;
+            $("#btn_query").click(function () {
+            	
+            	//表单数据
+            	var d1 =ko.toJS(operate.custData);
+            	var d2 =ko.toJS(operate.spoust);
+            	var d3 =ko.toJS(operate.proInfo);
+            	//表格数据
+            	var d4 =$('#tb_emergency').bootstrapTable('getData');
+            	var d5 =$('#tb_fee').bootstrapTable('getData');
+            	var d6 =$('#tb_car').bootstrapTable('getData');
+            	var d7 =$('#tb_repaymentPlan').bootstrapTable('getData');
+            	var d8 =$('#tb_audit').bootstrapTable('getData');
+            	var req ={
+                    	"custData":d1,
+                    	"spoust":d2,
+                    	"emergencyInfo":d4,
+                    	"proInfo":d3,
+                    	"feeInfo":d5,
+                    	"carInfo":d6,
+                    	"repaymentPlan":d7,
+                    	"audit":d8,
+                    };
+            	req =JSON.stringify(req);
+            	$.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clOrderUpdate",
+                    data: {
+                    	"req":req,
+                    	"proId":updateProId
+                    },
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    beforeSend: function () {
+                        //indexWait = layer.load(0, { shade: [0.6, '#bbb'] });
+                    },
+                    success: function (json) {
+                        //layer.close(indexWait);
+                        json =$.parseJSON(json);
+                        if (json.result == true) {
+                        	alert("提交成功");
+                        }
+                        else {
+                        	alert(json.msg);
+                        //    layer.alert(json.msg, function (index) {
+                        //        layer.close(index);
+                        //    });
+                        }
+                    }
+                });//ajax
+
+            });
+        	
+            $("#btn_orderbase_delete").click(function () {
+                var arrselectedData = $("#tb_departments").bootstrapTable('getSelections');
+                if (!operate.operateCheck(arrselectedData)) {
+                    return;
+                }
+                var proId =arrselectedData[0].proid;
+                $.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clOrderDelete",
+                    data: {
+                    	"proId":proId
+                    },
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    success: function (json) {
+                    	json =$.parseJSON(json);
+                        if (json.result == true) {
+                        	alert("删除成功");
+                        	$("#tb_departments").bootstrapTable('refresh');
+                        }
+                        else {
+                        	alert(json.msg);
+                        }
+                    }
+                });//ajax
+            });
+            $("#btn_orderbase_edit").click(function () {
+            	// 更新数据
+            	var arrselectedData = $("#tb_departments").bootstrapTable('getSelections');
+                if (!operate.operateCheck(arrselectedData)) {
+                    return;
+                }
+                var proId =arrselectedData[0].proid;
+                //请求数据
+                $.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clOrderLoad",
+                    data: {
+                    	"proId":proId
+                    },
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    success: function (json) {
+                    	json =$.parseJSON(json);
+                        if (json.id) {
+                        	updateProId =json.id;
+                        	document.getElementById("OrderdataDiv").style.display="";//显示
+                        	document.getElementById("OrderbaseDiv").style.display="none";//隐藏
+                        	
+                        	//表单
+                        	ko.utils.extend(operate.custData,ko.mapping.fromJS(json.data.custData));//修改viewmodel
+                        	ko.utils.extend(operate.spoust,ko.mapping.fromJS(json.data.spoust));//修改viewmodel
+                        	ko.utils.extend(operate.proInfo,ko.mapping.fromJS(json.data.proInfo));//修改viewmodel
+                        	//重新绑定
+                        	ko.cleanNode(document.getElementById("form_custData"));
+                        	ko.cleanNode(document.getElementById("form_spoust"));
+                        	ko.cleanNode(document.getElementById("form_proInfo"));
+                        	ko.applyBindings(operate.custData,document.getElementById("form_custData"));
+                            ko.applyBindings(operate.spoust,document.getElementById("form_spoust"));
+                            ko.applyBindings(operate.proInfo,document.getElementById("form_proInfo"));
+                            
+                            //表格数据
+                            $("#tb_emergency").bootstrapTable('removeAll');
+                            for(var i =0;i <json.data.emergencyInfo.length;i++)
+                            	$('#tb_emergency').bootstrapTable('append',json.data.emergencyInfo[i]);
+                            $("#tb_fee").bootstrapTable('removeAll');
+                            for(var i =0;i <json.data.emergencyInfo.length;i++)
+                            	$('#tb_fee').bootstrapTable('append',json.data.feeInfo[i]);
+                            $("#tb_car").bootstrapTable('removeAll');
+                            for(var i =0;i <json.data.emergencyInfo.length;i++)
+                            	$('#tb_car').bootstrapTable('append',json.data.carInfo[i]);
+                            $("#tb_repaymentPlan").bootstrapTable('removeAll');
+                            for(var i =0;i <json.data.emergencyInfo.length;i++)
+                            	$('#tb_repaymentPlan').bootstrapTable('append',json.data.repaymentPlan[i]);
+                            $("#tb_audit").bootstrapTable('removeAll');
+                            for(var i =0;i <json.data.emergencyInfo.length;i++)
+                            	$('#tb_audit').bootstrapTable('append',json.data.audit[i]);
+                        }
+                        else {
+                        	alert(json.msg);
+                        }
+                    }
+                });//ajax
+               
+            });
+            $("#btn_orderbase_upload").click(function () {
+            	// 向资金方提交申请
+                var arrselectedData = $("#tb_departments").bootstrapTable('getSelections');
+                if (!operate.operateCheck(arrselectedData)) {
+                    return;
+                }
+                var proId =arrselectedData[0].proid;
+                $.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clOrderApply",
+                    data: {
+                    	"proId":proId
+                    },
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    success: function (json) {
+                    	json =$.parseJSON(json);
+                        if (json.result == true) {
+                        	alert("申请已发出 等待审核");
+                        	$("#tb_departments").bootstrapTable('refresh');
+                        }
+                        else {
+                        	alert(json.msg);
+                        }
+                    }
+                });//ajax
+            });
+            $("#btn_orderbase_sendMsg").click(function () {
+            	// 向资金方发送短信验证码
+                $("#tb_departments").bootstrapTable('refresh');
+            });
+        });
+
+     	// 操作
+        var operate = {
+	     	// 初始化按钮事件
+	        operateInit : function() {
+	            this.operateAddEmergency();
+	            this.operateUpdateEmergency();
+	            this.operateDeleteEmergency();
+	            
+	            this.operateAddCar();
+	            this.operateUpdateCar();
+	            this.operateDeleteCar();
+	
+	            this.operateAddFee();
+	            this.operateUpdateFee();
+	            this.operateDeleteFee();
+	            
+	            this.operateAddRepayment();
+	            this.operateUpdateRepayment();
+	            this.operateDeleteRepayment();
+	            
+	            this.operateAddAudit();
+	            this.operateUpdateAudit();
+	            this.operateDeleteAudit();
+	            this.custData = {
+	            		custName : ko.observable(),
+	                    createName : ko.observable(),
+	                    Type : ko.observable("NP"),
+	                    industryFication : ko.observable(),
+	                    idCardType : ko.observable(),
+	                    idcardNo : ko.observable(),
+	                    Birthday : ko.observable(),
+	                    Phone : ko.observable(),
+	                    telephone : ko.observable(),
+	                    Sex : ko.observable(),
+	                    Age : ko.observable(),
+	                    degreeEdu : ko.observable(),
+	                    isMarry : ko.observable(),
+	                    companyAddrProvince : ko.observable(),
+	                    companyAddrCity : ko.observable(),
+	                    companyAddrCounty : ko.observable(),
+	                    companyAddr : ko.observable(),
+	                    houseAddressProvince : ko.observable(),
+	                    houseAddressCity : ko.observable(),
+	                    houseAddressCounty : ko.observable(),
+	                    houseAddress : ko.observable(),
+	                    workUnit : ko.observable(),
+	                    custStatus : ko.observable(),
+	                    messegeZipCd : ko.observable(),
+	                    maxDegreeCd : ko.observable(),
+	                    sqshnsrGr : ko.observable(),
+	                    Email : ko.observable(),
+	                    profession : ko.observable(),
+	                    duties : ko.observable(),
+	                    position : ko.observable()
+	            };
+	            this.spoust={
+	                    spoust_name : ko.observable(),
+	                    spoust_sex : ko.observable("0"),
+	                    spoust_birthday : ko.observable(),
+	                    spoust_age : ko.observable(),
+	                    spoust_nation : ko.observable(),
+	                    spoust_id_card_no : ko.observable(),
+	                    spoust_id_Card_Type : ko.observable(),
+	                    spoust_tel_Phone : ko.observable(),
+	                    spoust_housr_re_address : ko.observable(),
+	                    spoust_work_unit : ko.observable(),
+	                    spoust_company_addr_province : ko.observable(),
+	                    spoust_company_addr_city : ko.observable(),
+	                    spoust_company_addr_county : ko.observable(),
+	                    spoust_company_addr : ko.observable()
+	            };
+	            this.emergencyInfo={ // 应该为数组 这里用来临时存储
+	                    emergencyName : ko.observable(),
+	                    emergencyPhone : ko.observable(),
+	                    emergencyAddr : ko.observable(),
+	                    emergencyRelationship : ko.observable(),
+	                    addrProvince : ko.observable(),
+	                    addrCity : ko.observable(),
+	                    addrCounty : ko.observable()
+	            };
+	            this.proInfo={
+	                proName : ko.observable(),
+	                proStatus : ko.observable(),
+	                productType : ko.observable(),
+	                payWay : ko.observable("13"),
+	                roundUpType : ko.observable(),
+	                yearInterest : ko.observable(),
+	                leaseTerm : ko.observable(),
+	                leasePeriod : ko.observable(),
+	                leaseTopric : ko.observable(),
+	                loanMoney : ko.observable(),
+	                firstrentValue : ko.observable(),
+	                firstrentMoney : ko.observable(),
+	                bailPercent : ko.observable(),
+	                depositMoney : ko.observable(),
+	                poundageRate : ko.observable(),
+	                poundagePrice : ko.observable(),
+	                proPouneagePrice : ko.observable(),
+	                totalMonthPrice : ko.observable(),
+	                monthRent : ko.observable(),
+	                bankCardNo : ko.observable(),
+	                bankName : ko.observable(),
+	                bankCardMobile : ko.observable(),
+	                createTime : ko.observable(),
+	                businessType : ko.observable(),
+	                open_trem : ko.observable(),
+	                open_rent : ko.observable()
+	            };
+	            this.carInfo={ // 应该为数组 这里用来临时存储
+	                    isNewCar : ko.observable(),
+	                    carId : ko.observable(),
+	                    Supplier : ko.observable(),
+	                    Company : ko.observable(),
+	                    Brand : ko.observable(),
+	                    Series : ko.observable(),
+	                    Model : ko.observable(),
+	                    referPrice : ko.observable(),
+	                    actualPrice : ko.observable(),
+	                    Unit : ko.observable(),
+	                    engineNo : ko.observable(),
+	                    VIN : ko.observable(),
+	                    insExpireDate : ko.observable(),
+	                    Insure : ko.observable(),
+	                    vehicleTax : ko.observable(),
+	                    GPSLoanMoney : ko.observable(),
+	                    carNumMoney : ko.observable(),
+	                    purchaseTax : ko.observable()
+	            };
+	            this.feeInfo={ // 应该为数组 这里用来临时存储
+	                    feeType : ko.observable(),
+	                    feePercent : ko.observable(),
+	                    money : ko.observable(),
+	                    isIncludeLoan : ko.observable(),
+	                    type : ko.observable()
+	            };
+	            this.repaymentPlan={ // 应该为数组 这里用来临时存储
+	                    repaymentTerm : ko.observable(),
+	                    payDate : ko.observable(),
+	                    itemName : ko.observable(),
+	                    itemMoney : ko.observable(),
+	                    itemFlag : ko.observable()
+	            };
+	            this.audit={ // 应该为数组 这里用来临时存储
+	                    proStage : ko.observable(),
+	                    remark : ko.observable(),
+	                    result : ko.observable(),
+	                    auditTime : ko.observable(),
+	                    op : ko.observable()
+	            };
+	        },
+	        // 新增
+	        operateAddEmergency : function() {
+	            $('#btn_add').on(
+	                    "click",
+	                    function() {
+	                        $("#addEmergencyModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    var oEmptyModel = {
+	                                    		isNewCar : ko.observable(),
+	                                            carId : ko.observable(),
+	                                            Supplier : ko.observable(),
+	                                            Company : ko.observable(),
+	                                            Brand : ko.observable(),
+	                                            Series : ko.observable(),
+	                                            Model : ko.observable(),
+	                                            referPrice : ko.observable(),
+	                                            actualPrice : ko.observable(),
+	                                            Unit : ko.observable(),
+	                                            engineNo : ko.observable(),
+	                                            VIN : ko.observable(),
+	                                            insExpireDate : ko.observable(),
+	                                            Insure : ko.observable(),
+	                                            vehicleTax : ko.observable(),
+	                                            GPSLoanMoney : ko.observable(),
+	                                            carNumMoney : ko.observable(),
+	                                            purchaseTax : ko.observable()
+	                                        };
+	                                    ko.utils.extend(operate.emergencyInfo,
+	                                            oEmptyModel);
+	                                    ko.applyBindings(operate.emergencyInfo,
+	                                            document.getElementById("addEmergencyModal"));
+	                                    operate.operateSaveEmergency();
+	                                }).on('hidden.bs.modal', function() {
+	                            ko.cleanNode(document.getElementById("addEmergencyModal"));
+	                        });
+	                    });
+	        },
+	     	// 编辑  修改这里我没有做  如果需要的话  把弹出页面中input中的data-bind中value:name 换成value:你后台传来的变量名称                  
+	        operateUpdateEmergency : function() {
+	            $('#btn_edit').on(
+	                    "click",
+	                    function() {
+	                        $("#addEmergencyModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    //var arrselectedData = tableInit.myViewModel.getSelections();
+	                                    var arrselectedData = $("#tb_emergency").bootstrapTable('getSelections');
+	                                    
+	                                    if (!operate.operateCheck(arrselectedData)) {
+	                                        return;
+	                                    }
+	                                    // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
+	                                    ko.utils.extend(operate.emergencyInfo,
+	                                            ko.mapping.fromJS(arrselectedData[0]));
+	                                    ko.applyBindings(operate.emergencyInfo,
+	                                            document.getElementById("addEmergencyModal"));
+	                                    operate.operateSaveUpdateEmergency();
+	                                }).on('hidden.bs.modal', function() {
+	                            // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
+	                            ko.cleanNode(document.getElementById("addEmergencyModal"));
+	                        });
+	                    });
+	        },
+	        // 删除
+	        operateDeleteEmergency : function() {  //当点击删除的时候  会进入这个方法
+	            $('#btn_delete').on(
+	                    "click",
+	                    function() {
+	                    	$("#tb_emergency").bootstrapTable('remove', {field: 'checked', values: [true]});
+	                    });
+	        },
+	        // 增加时保存数据
+	        operateSaveEmergency : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.emergencyInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                
+	                if (oDataModel.emergencyName == undefined || oDataModel.emergencyName.trim() == "") {
+	                    alert("联系人姓名不能为空");
+	                    return;
+	                }
+	                if (oDataModel.emergencyPhone == undefined || oDataModel.emergencyPhone.trim() == "") {
+	                    alert("联系人电话不能为空");
+	                    return;
+	                }
+	                if (oDataModel.emergencyRelationship == undefined || oDataModel.emergencyRelationship.trim() == "") {
+	                    alert("与联系人关系不能为空");
+	                    return;
+	                }
+	                $('#tb_emergency').bootstrapTable('append',oDataModel); 
+	            });
+	        },
+	        // 增加时保存数据
+	        operateSaveUpdateEmergency : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.emergencyInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                if (oDataModel.emergencyName == undefined || oDataModel.emergencyName.trim() == "") {
+	                    alert("联系人姓名不能为空");
+	                    return;
+	                }
+	                if (oDataModel.emergencyPhone == undefined || oDataModel.emergencyPhone.trim() == "") {
+	                    alert("联系人电话不能为空");
+	                    return;
+	                }
+	                if (oDataModel.emergencyRelationship == undefined || oDataModel.emergencyRelationship.trim() == "") {
+	                    alert("与联系人关系不能为空");
+	                    return;
+	                }
+	                var data = $('#tb_emergency').bootstrapTable('getData');
+	                for(var i =0;i <data.length;i++)
+	                	{
+	                		if(data[i].checked ==true)
+	                			break;
+	                	}
+	                //var arrselectedData = $("#tb_emergency").bootstrapTable('getSelections');
+	                //var rowIndex =$(this).parents('tr').data('index');
+	               	$('#tb_emergency').bootstrapTable('updateRow', {index: i, row: oDataModel});
+	            });
+	        },
+	        //增加Car
+	        operateAddCar : function() {
+	            $('#btn_add_car').on(
+	                    "click",
+	                    function() {
+	                        $("#addCarModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    var oEmptyModel = {
+	                                            isNewCar : ko.observable(),
+	                                            carId : ko.observable(),
+	                                            Supplier : ko.observable(),
+	                                            Company : ko.observable(),
+	                                            Brand : ko.observable(),
+	                                            Series : ko.observable(),
+	                                            Model : ko.observable(),
+	                                            referPrice : ko.observable(),
+	                                            actualPrice : ko.observable(),
+	                                            Unit : ko.observable(),
+	                                            engineNo : ko.observable(),
+	                                            VIN : ko.observable(),
+	                                            insExpireDate : ko.observable(),
+	                                            Insure : ko.observable(),
+	                                            vehicleTax : ko.observable(),
+	                                            GPSLoanMoney : ko.observable(),
+	                                            carNumMoney : ko.observable(),
+	                                            purchaseTax : ko.observable()
+	                                        };
+	                                    ko.utils.extend(operate.carInfo,
+	                                            oEmptyModel);
+	                                    ko.applyBindings(operate.carInfo,
+	                                            document.getElementById("addCarModal"));
+	                                    operate.operateSaveCar();
+	                                }).on('hidden.bs.modal', function() {
+	                            ko.cleanNode(document.getElementById("addCarModal"));
+	                        });
+	                    });
+	        },
+	     	// 编辑Car                  
+	        operateUpdateCar : function() {
+	            $('#btn_edit_car').on(
+	                    "click",
+	                    function() {
+	                        $("#addCarModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    //var arrselectedData = tableInit.myViewModel.getSelections();
+	                                    var arrselectedData = $("#tb_car").bootstrapTable('getSelections');
+	                                    
+	                                    if (!operate.operateCheck(arrselectedData)) {
+	                                        return;
+	                                    }
+	                                    // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
+	                                    ko.utils.extend(operate.carInfo,
+	                                            ko.mapping.fromJS(arrselectedData[0]));
+	                                    ko.applyBindings(operate.carInfo,
+	                                            document.getElementById("addCarModal"));
+	                                    operate.operateSaveUpdateCar();
+	                                }).on('hidden.bs.modal', function() {
+	                            // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
+	                            ko.cleanNode(document.getElementById("addCarModal"));
+	                        });
+	                    });
+	        },
+	        // 删除Car
+	        operateDeleteCar : function() {  //当点击删除的时候  会进入这个方法
+	            $('#btn_delete_car').on(
+	                    "click",
+	                    function() {
+	                    	$("#tb_car").bootstrapTable('remove', {field: 'checked', values: [true]});
+	                    });
+	        },
+	        // 增加Car时保存数据
+	        operateSaveCar : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_car').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.carInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                
+	                if (oDataModel.Supplier == undefined || oDataModel.Supplier.trim() == "") {
+	                    alert("车商名称不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Company == undefined || oDataModel.Company.trim() == "") {
+	                    alert("厂商不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Brand == undefined || oDataModel.Brand.trim() == "") {
+	                    alert("品牌不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Series == undefined || oDataModel.Series.trim() == "") {
+	                    alert("车系不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Model == undefined || oDataModel.Model.trim() == "") {
+	                    alert("型号不能为空");
+	                    return;
+	                }
+	                if (oDataModel.referPrice == undefined || oDataModel.referPrice.trim() == "") {
+	                    alert("指导价不能为空");
+	                    return;
+	                }
+	                if (oDataModel.actualPrice == undefined || oDataModel.actualPrice.trim() == "") {
+	                    alert("实际单价不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Unit == undefined || oDataModel.Unit.trim() == "") {
+	                    alert("设备单位不能为空");
+	                    return;
+	                }
+	                
+	                $('#tb_car').bootstrapTable('append',oDataModel); 
+	            });
+	        },
+	        // 更新Car时保存数据
+	        operateSaveUpdateCar : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_car').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.carInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                if (oDataModel.Supplier == undefined || oDataModel.Supplier.trim() == "") {
+	                    alert("车商名称不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Company == undefined || oDataModel.Company.trim() == "") {
+	                    alert("厂商不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Brand == undefined || oDataModel.Brand.trim() == "") {
+	                    alert("品牌不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Series == undefined || oDataModel.Series.trim() == "") {
+	                    alert("车系不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Model == undefined || oDataModel.Model.trim() == "") {
+	                    alert("型号不能为空");
+	                    return;
+	                }
+	                if (oDataModel.referPrice == undefined || oDataModel.referPrice.trim() == "") {
+	                    alert("指导价不能为空");
+	                    return;
+	                }
+	                if (oDataModel.actualPrice == undefined || oDataModel.actualPrice.trim() == "") {
+	                    alert("实际单价不能为空");
+	                    return;
+	                }
+	                if (oDataModel.Unit == undefined || oDataModel.Unit.trim() == "") {
+	                    alert("设备单位不能为空");
+	                    return;
+	                }
+	                var data = $('#tb_car').bootstrapTable('getData');
+	                for(var i =0;i <data.length;i++)
+	                	{
+	                		if(data[i].checked ==true)
+	                			break;
+	                	}
+	                //var arrselectedData = $("#tb_car").bootstrapTable('getSelections');
+	                //var rowIndex =$(this).parents('tr').data('index');
+	               	$('#tb_car').bootstrapTable('updateRow', {index: i, row: oDataModel});
+	            });
+	        },
+	        //增加Fee
+	        operateAddFee : function() {
+	            $('#btn_add_fee').on(
+	                    "click",
+	                    function() {
+	                        $("#addFeeModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    var oEmptyModel = {
+	                                            feeType : ko.observable(),
+	                                            feePercent : ko.observable(),
+	                                            money : ko.observable(),
+	                                            isIncludeLoan : ko.observable(),
+	                                            type : ko.observable()
+	                                        };
+	                                    ko.utils.extend(operate.feeInfo,
+	                                            oEmptyModel);
+	                                    ko.applyBindings(operate.feeInfo,
+	                                            document.getElementById("addFeeModal"));
+	                                    operate.operateSaveFee();
+	                                }).on('hidden.bs.modal', function() {
+	                            ko.cleanNode(document.getElementById("addFeeModal"));
+	                        });
+	                    });
+	        },
+	     	// 编辑Fee                  
+	        operateUpdateFee : function() {
+	            $('#btn_edit_fee').on(
+	                    "click",
+	                    function() {
+	                        $("#addFeeModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    //var arrselectedData = tableInit.myViewModel.getSelections();
+	                                    var arrselectedData = $("#tb_fee").bootstrapTable('getSelections');
+	                                    
+	                                    if (!operate.operateCheck(arrselectedData)) {
+	                                        return;
+	                                    }
+	                                    // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
+	                                    ko.utils.extend(operate.feeInfo,
+	                                            ko.mapping.fromJS(arrselectedData[0]));
+	                                    ko.applyBindings(operate.feeInfo,
+	                                            document.getElementById("addFeeModal"));
+	                                    operate.operateSaveUpdateFee();
+	                                }).on('hidden.bs.modal', function() {
+	                            // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
+	                            ko.cleanNode(document.getElementById("addFeeModal"));
+	                        });
+	                    });
+	        },
+	        // 删除Fee
+	        operateDeleteFee : function() {  //当点击删除的时候  会进入这个方法
+	            $('#btn_delete_fee').on(
+	                    "click",
+	                    function() {
+	                    	$("#tb_fee").bootstrapTable('remove', {field: 'checked', values: [true]});
+	                    });
+	        },
+	        // 增加时保存Fee数据
+	        operateSaveFee : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_fee').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.feeInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                
+	                if (oDataModel.feeType == undefined || oDataModel.feeType.trim() == "") {
+	                    alert("费用类型不能为空");
+	                    return;
+	                }
+	                if (oDataModel.feePercent == undefined || oDataModel.feePercent.trim() == "") {
+	                    alert("费用比例不能为空");
+	                    return;
+	                }
+	                if (oDataModel.money == undefined || oDataModel.money.trim() == "") {
+	                    alert("费用金额不能为空");
+	                    return;
+	                }
+	                if (oDataModel.isIncludeLoan == undefined || oDataModel.isIncludeLoan.trim() == "") {
+	                    alert("费用计入方式不能为空");
+	                    return;
+	                }
+	                $('#tb_fee').bootstrapTable('append',oDataModel); 
+	            });
+	        },
+	        // 增加时保存Fee数据
+	        operateSaveUpdateFee : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_fee').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.feeInfo;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                if (oDataModel.feeType == undefined || oDataModel.feeType.trim() == "") {
+	                    alert("费用类型不能为空");
+	                    return;
+	                }
+	                if (oDataModel.feePercent == undefined || oDataModel.feePercent.trim() == "") {
+	                    alert("费用比例不能为空");
+	                    return;
+	                }
+	                if (oDataModel.money == undefined || oDataModel.money.trim() == "") {
+	                    alert("费用金额不能为空");
+	                    return;
+	                }
+	                if (oDataModel.isIncludeLoan == undefined || oDataModel.isIncludeLoan.trim() == "") {
+	                    alert("费用计入方式不能为空");
+	                    return;
+	                }
+	                var data = $('#tb_fee').bootstrapTable('getData');
+	                for(var i =0;i <data.length;i++)
+	                	{
+	                		if(data[i].checked ==true)
+	                			break;
+	                	}
+	                //var arrselectedData = $("#tb_emergency").bootstrapTable('getSelections');
+	                //var rowIndex =$(this).parents('tr').data('index');
+	               	$('#tb_fee').bootstrapTable('updateRow', {index: i, row: oDataModel});
+	            });
+	        },
+	      //增加Repayment
+	        operateAddRepayment : function() {
+	            $('#btn_add_repaymentPlan').on(
+	                    "click",
+	                    function() {
+	                        $("#addRepaymentModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    var oEmptyModel = {
+	                                            repaymentTerm : ko.observable(),
+	                                            payDate : ko.observable(),
+	                                            itemName : ko.observable(),
+	                                            itemMoney : ko.observable(),
+	                                            itemFlag : ko.observable()
+	                                    };
+	
+	                                    ko.utils.extend(operate.repaymentPlan,
+	                                            oEmptyModel);
+	                                    ko.applyBindings(operate.repaymentPlan,
+	                                            document.getElementById("addRepaymentModal"));
+	                                    operate.operateSaveRepayment();
+	                                }).on('hidden.bs.modal', function() {
+	                            ko.cleanNode(document.getElementById("addRepaymentModal"));
+	                        });
+	                    });
+	        },
+	     	// 编辑Repayment                  
+	        operateUpdateRepayment : function() {
+	            $('#btn_edit_repaymentPlan').on(
+	                    "click",
+	                    function() {
+	                        $("#addRepaymentModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    //var arrselectedData = tableInit.myViewModel.getSelections();
+	                                    var arrselectedData = $("#tb_repaymentPlan").bootstrapTable('getSelections');
+	                                    
+	                                    if (!operate.operateCheck(arrselectedData)) {
+	                                        return;
+	                                    }
+	                                    // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
+	                                    ko.utils.extend(operate.repaymentPlan,
+	                                            ko.mapping.fromJS(arrselectedData[0]));
+	                                    ko.applyBindings(operate.repaymentPlan,
+	                                            document.getElementById("addRepaymentModal"));
+	                                    operate.operateSaveUpdateRepayment();
+	                                }).on('hidden.bs.modal', function() {
+	                            // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
+	                            ko.cleanNode(document.getElementById("addRepaymentModal"));
+	                        });
+	                    });
+	        },
+	        // 删除Repayment
+	        operateDeleteRepayment : function() {  //当点击删除的时候  会进入这个方法
+	            $('#btn_delete_repaymentPlan').on(
+	                    "click",
+	                    function() {
+	                    	$("#tb_repaymentPlan").bootstrapTable('remove', {field: 'checked', values: [true]});
+	                    });
+	        },
+	        // 增加时保存Repayment数据
+	        operateSaveRepayment : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_repaymentPlan').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.repaymentPlan;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                
+	                if (oDataModel.repaymentTerm == undefined || oDataModel.repaymentTerm.trim() == "") {
+	                    alert("还款期数不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemName == undefined || oDataModel.itemName.trim() == "") {
+	                    alert("项目名称不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemMoney == undefined || oDataModel.itemMoney.trim() == "") {
+	                    alert("项目金额不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemFlag == undefined || oDataModel.itemFlag.trim() == "") {
+	                    alert("项目类型不能为空");
+	                    return;
+	                }
+	                $('#tb_repaymentPlan').bootstrapTable('append',oDataModel); 
+	            });
+	        },
+	        // 增加时保存Repayment数据
+	        operateSaveUpdateRepayment : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_repaymentPlan').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.repaymentPlan;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                if (oDataModel.repaymentTerm == undefined || oDataModel.repaymentTerm.trim() == "") {
+	                    alert("还款期数不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemName == undefined || oDataModel.itemName.trim() == "") {
+	                    alert("项目名称不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemMoney == undefined || oDataModel.itemMoney.trim() == "") {
+	                    alert("项目金额不能为空");
+	                    return;
+	                }
+	                if (oDataModel.itemFlag == undefined || oDataModel.itemFlag.trim() == "") {
+	                    alert("项目类型不能为空");
+	                    return;
+	                }
+	                var data = $('#tb_repaymentPlan').bootstrapTable('getData');
+	                for(var i =0;i <data.length;i++)
+	                	{
+	                		if(data[i].checked ==true)
+	                			break;
+	                	}
+	                //var arrselectedData = $("#tb_emergency").bootstrapTable('getSelections');
+	                //var rowIndex =$(this).parents('tr').data('index');
+	               	$('#tb_repaymentPlan').bootstrapTable('updateRow', {index: i, row: oDataModel});
+	            });
+	        },
+	      //增加Audit
+	        operateAddAudit : function() {
+	            $('#btn_add_audit').on(
+	                    "click",
+	                    function() {
+	                        $("#addAuditModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    var oEmptyModel = {
+	                                             proStage : ko.observable(),
+	                                             remark : ko.observable(),
+	                                             result : ko.observable(),
+	                                             auditTime : ko.observable(),
+	                                             op : ko.observable()
+	                                         };
+	                                    ko.utils.extend(operate.audit,
+	                                            oEmptyModel);
+	                                    ko.applyBindings(operate.audit,
+	                                            document.getElementById("addAuditModal"));
+	                                    operate.operateSaveAudit();
+	                                }).on('hidden.bs.modal', function() {
+	                            ko.cleanNode(document.getElementById("addAuditModal"));
+	                        });
+	                    });
+	        },
+	     	// 编辑Audit                  
+	        operateUpdateAudit : function() {
+	            $('#btn_edit_audit').on(
+	                    "click",
+	                    function() {
+	                        $("#addAuditModal").modal().on(
+	                                "shown.bs.modal",
+	                                function() {
+	                                    //var arrselectedData = tableInit.myViewModel.getSelections();
+	                                    var arrselectedData = $("#tb_audit").bootstrapTable('getSelections');
+	                                    
+	                                    if (!operate.operateCheck(arrselectedData)) {
+	                                        return;
+	                                    }
+	                                    // 将选中该行数据有数据Model通过Mapping组件转换为viewmodel
+	                                    ko.utils.extend(operate.audit,
+	                                            ko.mapping.fromJS(arrselectedData[0]));
+	                                    ko.applyBindings(operate.audit,
+	                                            document.getElementById("addAuditModal"));
+	                                    operate.operateSaveUpdateAudit();
+	                                }).on('hidden.bs.modal', function() {
+	                            // 关闭弹出框的时候清除绑定(这个清空包括清空绑定和清空注册事件)
+	                            ko.cleanNode(document.getElementById("addAuditModal"));
+	                        });
+	                    });
+	        },
+	        // 删除Audit
+	        operateDeleteAudit : function() {  //当点击删除的时候  会进入这个方法
+	            $('#btn_delete_audit').on(
+	                    "click",
+	                    function() {
+	                    	$("#tb_audit").bootstrapTable('remove', {field: 'checked', values: [true]});
+	                    });
+	        },
+	        // 增加时保存Audit数据
+	        operateSaveAudit : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_audit').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.audit;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                
+	                if (oDataModel.proStage == undefined || oDataModel.proStage.trim() == "") {
+	                    alert("项目阶段不能为空");
+	                    return;
+	                }
+	                $('#tb_audit').bootstrapTable('append',oDataModel); 
+	            });
+	        },
+	        // 增加时保存Audit数据
+	        operateSaveUpdateAudit : function() {  //当点击保存的时候回跳到这个方法
+	            $('#btn_submit_audit').on("click", function() {
+	                // 取到当前的viewmodel
+	                var oViewModel = operate.audit;
+	                // 将Viewmodel转换为数据model
+	                var oDataModel = ko.toJS(oViewModel);
+	                if (oDataModel.proStage == undefined || oDataModel.proStage.trim() == "") {
+	                    alert("项目阶段不能为空");
+	                    return;
+	                }
+	                var data = $('#tb_audit').bootstrapTable('getData');
+	                for(var i =0;i <data.length;i++)
+	                	{
+	                		if(data[i].checked ==true)
+	                			break;
+	                	}
+	                //var arrselectedData = $("#tb_emergency").bootstrapTable('getSelections');
+	                //var rowIndex =$(this).parents('tr').data('index');
+	               	$('#tb_audit').bootstrapTable('updateRow', {index: i, row: oDataModel});
+	            });
+	        },
+	        // 数据校验
+	        operateCheck : function(arr) {
+	            if (arr.length <= 0) {
+	                alert("请至少选择一行数据");
+	                return false;
+	            }
+	            if (arr.length > 1) {
+	                alert("只能编辑一行数据");
+	                return false;
+	            }
+	            return true;
+	        }
+        }
+     
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tb_departments').bootstrapTable({
+                    url: '/MavenSSM/CarLoan/clOrderbaseData',         //请求后台的URL（*）
+                    method: 'post',                      //请求方式（*）
+                    contentType:"application/x-www-form-urlencoded",
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "proId",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    responseHandler:responseHandler,	//处理服务器返回的数据
+                    columns: [{
+                        checkbox: true
+                    },  {
+                        field: 'proid',
+                        title: '订单Id'
+                    }, {
+                        field: 'statusid',
+                        title: '状态Id'
+                    }, {
+                        field: 'custname',
+                        title: '客户姓名'
+                    }, {
+                        field: 'idCardtype',
+                        title: '证件类型'
+                    }, {
+                        field: 'leaseterm',
+                        title: '期数'
+                    }, {
+                        field: 'leaseperiod',
+                        title: '周期'
+                    }, {
+                        field: 'leasetopric',
+                        title: '设备总额'
+                    }, {
+                        field: 'loanmoney',
+                        title: '贷款金额'
+                    }, {
+                        field: 'createtime',
+                        title: '创建时间'
+                    } 
+                    ]
+                });
+                
+                
+                $('#tb_emergency').bootstrapTable({
+                    toolbar: '#toolbar_emergency',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "emergencyName",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                    	field : 'checked',
+                        checkbox: true
+                    },{
+                        field: 'emergencyName',
+                        title: '姓名'
+                    },{
+                        field: 'emergencyPhone',
+                        title: '手机号'
+                    },{
+                        field: 'emergencyAddr',
+                        title: '现居住地址'
+                    },{
+                        field: 'emergencyRelationship',
+                        title: '与联系人关系'
+                    },{
+                        field: 'addrProvince',
+                        title: '现居住地址(省)'
+                    },{
+                        field: 'addrCity',
+                        title: '现居住地址(市)'
+                    },{
+                        field: 'addrCounty',
+                        title: '现居住地址(县/区)'
+                    }
+                    ]
+                });
+                $('#tb_car').bootstrapTable({
+                    toolbar: '#toolbar_car',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "emergencyName",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                    	field : 'checked',
+                        checkbox: true
+                    },{
+                        field: 'isNewCar',
+                        title: '是否是新车'
+                    },{
+                        field: 'carId',
+                        title: 'carId'
+                    },{
+                        field: 'Supplier',
+                        title: '车商名称'
+                    },{
+                        field: 'Company',
+                        title: '厂商'
+                    },{
+                        field: 'Brand',
+                        title: '品牌'
+                    },{
+                        field: 'Series',
+                        title: '车系'
+                    },{
+                        field: 'Model',
+                        title: '型号'
+                    },{
+                        field: 'referPrice',
+                        title: '指导价'
+                    },{
+                        field: 'actualPrice',
+                        title: '实际单价'
+                    },{
+                        field: 'Unit',
+                        title: '设备单位'
+                    },{
+                        field: 'engineNo',
+                        title: '发动机/许可证号'
+                    },{
+                        field: 'VIN',
+                        title: '整机编号/车架号'
+                    },{
+                        field: 'insExpireDate',
+                        title: '保险到期日'
+                    },{
+                        field: 'Insure',
+                        title: '保险'
+                    },{
+                        field: 'vehicleTax',
+                        title: '车船税'
+                    },{
+                        field: 'GPSLoanMoney',
+                        title: 'GPS安装费'
+                    },{
+                        field: 'carNumMoney',
+                        title: '上牌费'
+                    },{
+                        field: 'purchaseTax',
+                        title: '购置税'
+                    }
+                    ]
+                });
+                $('#tb_fee').bootstrapTable({
+                    toolbar: '#toolbar_fee',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "emergencyName",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                    	field : 'checked',
+                        checkbox: true
+                    },{
+                        field: 'feeType',
+                        title: '费用类型'
+                    },{
+                        field: 'feePercent',
+                        title: '费用比例'
+                    },{
+                        field: 'money',
+                        title: '费用金额'
+                    },{
+                        field: 'isIncludeLoan',
+                        title: '费用计入方式'
+                    },{
+                        field: 'type',
+                        title: '计算方式'
+                    
+                    }
+                    ]
+                });
+                $('#tb_repaymentPlan').bootstrapTable({
+                    toolbar: '#toolbar_repaymentPlan',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "emergencyName",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                    	field : 'checked',
+                        checkbox: true
+                    },{
+                        field: 'repaymentTerm',
+                        title: '还款期数'
+                    },{
+                        field: 'payDate',
+                        title: '应还款日期'
+                    },{
+                        field: 'itemName',
+                        title: '项目名称'
+                    },{
+                        field: 'itemMoney',
+                        title: '项目金额'
+                    },{
+                        field: 'itemFlag',
+                        title: '项目类型'
+                    
+                    }
+                    ]
+                });
+                $('#tb_audit').bootstrapTable({
+                    toolbar: '#toolbar_audit',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParamsType: "limit",
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: true,
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "emergencyName",                     //每一行的唯一标识，一般为主键列
+                    
+                    showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                    	field : 'checked',
+                        checkbox: true
+                    },{
+                        field: 'proStage',
+                        title: '项目阶段'
+                    },{
+                        field: 'remark',
+                        title: '审核备注'
+                    },{
+                        field: 'result',
+                        title: '审核结果'
+                    },{
+                        field: 'auditTime',
+                        title: '审核时间'
+                    },{
+                        field: 'op',
+                        title: '操作人'
+                    
+                    }
+                    ]
+                });
+            };
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //
+                    offset: params.offset,  //页码
+                    search: params.search //搜索
+                };
+                return temp;
+            };
+         	// 修改按钮、删除按钮
+            function addFunctionAlty(value, row, index) {
+                return [
+                    '<button type="button" id="btn_edit" class="btn btn-default" data-toggle="modal" data-target="#ModalInfo">修改</button>  ',
+                    '<button id="btn_delete" class="btn btn-warning">删除</button>'
+                ].join('');
+            }
+            //处理接收到的json数据
+            function responseHandler(res) {
+            	if (res.result ==1) {
+	            	return {
+	            		"rows": res.data,
+	            		"total": res.count
+	            	};
+            	} else {
+	            	return {
+	            		"rows": [],
+	            		"total": 0
+	            	};
+            	}
+            }
+            return oTableInit;
+        };
+
+    </script>
+</head>
+
+<body>
+
+	<div class="panel-body" id="OrderbaseDiv" style="padding-bottom:0px;">
+	
+        <div id="toolbar" class="btn-group">
+            <button id="btn_orderbase_delete" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+            </button>
+            <button id="btn_orderbase_edit" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+            </button>
+            
+            <button id="btn_orderbase_upload" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>提交申请
+            </button>
+            <button id="btn_orderbase_sendMsg" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>发送验证码
+            </button>             
+        </div>
+        <table id="tb_departments"></table>
+    </div>
+    
+    
+    <div class="panel-body" id="OrderdataDiv" style="padding-bottom:0px;">
+		
+        <div class="panel panel-default">
+            <div class="panel-heading">客户基本信息</div>
+            <div class="panel-body">
+                <form id="form_custData" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                    	
+                    	
+                        <label class="control-label col-sm-1" for="custName">客户名称</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:custName" id="custName">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="createName">创建人名称</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:createName" id="createName">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="Type">客户类型</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:Type" name="Type"  id="Type">
+		                        <option value ="-1">请选择类型</option>
+		                        <option value ="NP">个人</option>
+		                        <option value ="LP">企业</option>
+	                    	</select>
+                         </div>
+                         
+                        <label class="control-label col-sm-1" for="industryFication">行业类类型</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:industryFication" id="industryFication">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="idCardType">证件类型</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:idCardType" name="idCardType"  id="idCardType">
+		                        <option value ="-1">请选择类型</option>
+		                        <option value ="0">身份证</option>
+		                        <option value ="2">护照</option>
+		                        <option value ="3">军官证</option>
+		                        <option value ="4">士兵证</option>
+		                        <option value ="5">港澳居民来往内地通行证</option>
+		                        <option value ="6">台湾同胞来往内地通行证</option>
+		                        <option value ="7">临时身份证</option>
+		                        <option value ="8">外国人居留证</option>
+		                        <option value ="9">警官证</option>
+		                        <option value ="A">香港身份证</option>
+		                        <option value ="B">澳门身份证</option>
+		                        <option value ="C">台湾身份证</option>
+		                        <option value ="X">其他证件</option>
+	                    	</select>
+                         </div>
+                        
+                        <label class="control-label col-sm-1" for="idcardNo">证件号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:idcardNo" id="idcardNo">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="Birthday">出生日期</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:Birthday" id="Birthday">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=Phone>固定电话</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:Phone" id="Phone">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=telephone>手机号码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:telephone" id="telephone">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="Sex">性别</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:Sex" name="Sex"  id="Sex">
+		                        <option value =0>男</option>
+		                        <option value =1>女</option>
+	                    	</select>
+                         </div>
+                         
+                        <label class="control-label col-sm-1" for=Age>年龄</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:Age" id="Age">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="degreeEdu">学历</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:degreeEdu" name="degreeEdu"  id="degreeEdu">
+		                        <option value =99>未知</option>
+		                        <option value =10>研究生</option>
+		                        <option value =20>大学</option>
+		                        <option value =30>大专</option>
+		                        <option value =40>中专</option>
+		                        <option value =50>技校</option>
+		                        <option value =60>高中</option>
+		                        <option value =70>初中</option>
+		                        <option value =80>小学</option>
+		                        <option value =90>文盲或半文盲</option>
+	                    	</select>
+                         </div>
+                         
+                        <label class="control-label col-sm-1" for="isMarry">婚姻状况</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:isMarry" name="Sex"  id="isMarry">
+		                        <option value =20>已婚</option>
+		                        <option value =10>未婚</option>
+		                        <option value =40>离婚</option>
+		                        <option value =30>丧偶</option>
+		                        <option value =90>未说明的婚姻状况</option>
+		                        <option value =4>已婚有子女</option>
+		                        <option value =1>已婚无子女</option>
+	                    	</select>
+                         </div>
+                         
+                         <label class="control-label col-sm-1" for=companyAddrProvince>单位地址(省)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:companyAddrProvince" id="companyAddrProvince">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=companyAddrCity>单位地址(市)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:companyAddrCity" id="companyAddrCity">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=companyAddrCounty>单位地址(区/县)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:companyAddrCounty" id="companyAddrCounty">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=companyAddr>工作地址</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:companyAddr" id="companyAddr">
+                        </div>
+                        
+                         <label class="control-label col-sm-1" for=houseAddressProvince>家庭地址(省)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:houseAddressProvince" id="houseAddressProvince">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=houseAddressCity>家庭地址(市)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:houseAddressCity" id="houseAddressCity">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=houseAddressCounty>家庭地址(区/县)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:houseAddressCounty" id="houseAddressCounty">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=houseAddress>家庭地址</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:houseAddress" id="houseAddress">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=workUnit>工作单位</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:workUnit" id="workUnit">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="custStatus">客户签约状态</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:custStatus" name="custStatus"  id="custStatus">
+		                        <option value =1>未签约客户</option>
+		                        <option value =2>已签约客户</option>
+	                    	</select>
+                         </div>
+                         
+                        <label class="control-label col-sm-1" for=messegeZipCd>通讯地址邮政编码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:messegeZipCd" id="messegeZipCd">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=maxDegreeCd>最高学位</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:maxDegreeCd" id="maxDegreeCd">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=sqshnsrGr>月收入</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:sqshnsrGr" id="sqshnsrGr">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=Email>电子邮箱</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:Email" id="Email">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=profession>职业</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:profession" id="profession">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=duties>职务</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:duties" id="duties">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=position>职位</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:position" id="position">
+                        </div>
+                        
+                        <!-- 
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
+                        </div>
+                         -->
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">配偶信息</div>
+            <div class="panel-body">
+                <form id="form_spoust" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                    	
+                    	
+                        <label class="control-label col-sm-1" for="spoust_name">姓名</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_name" id="spoust_name">
+                        </div>
+
+                        <label class="control-label col-sm-1" for="spoust_sex">性别</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:spoust_sex" name="spoust_sex"  id="spoust_sex">
+		                        <option value =0>男</option>
+		                        <option value =1>女</option>
+	                    	</select>
+                         </div>
+                                  
+                        <label class="control-label col-sm-1" for="spoust_birthday">出生日期</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_birthday" id="spoust_birthday">
+                        </div>
+
+                        <label class="control-label col-sm-1" for=spoust_age>年龄</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_age" id="spoust_age">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="spoust_nation">民族</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_nation" id="spoust_nation">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="spoust_id_card_no">证件号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_id_card_no" id="spoust_id_card_no">
+                        </div>                       
+                        <label class="control-label col-sm-1" for="spoust_id_Card_Type">证件类型</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:spoust_id_Card_Type" name="spoust_id_Card_Type"  id="spoust_id_Card_Type">
+		                        <option value ="-1">请选择类型</option>
+		                        <option value ="0">身份证</option>
+		                        <option value ="2">护照</option>
+		                        <option value ="3">军官证</option>
+		                        <option value ="4">士兵证</option>
+		                        <option value ="5">港澳居民来往内地通行证</option>
+		                        <option value ="6">台湾同胞来往内地通行证</option>
+		                        <option value ="7">临时身份证</option>
+		                        <option value ="8">外国人居留证</option>
+		                        <option value ="9">警官证</option>
+		                        <option value ="A">香港身份证</option>
+		                        <option value ="B">澳门身份证</option>
+		                        <option value ="C">台湾身份证</option>
+		                        <option value ="X">其他证件</option>
+	                    	</select>
+                         </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_tel_Phone>手机号码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_tel_Phone" id="spoust_tel_Phone">
+                        </div>
+                             
+                                                     
+                        <label class="control-label col-sm-1" for=spoust_housr_re_address>配偶户籍地址</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_housr_re_address" id="spoust_housr_re_address">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_work_unit>工作单位</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_work_unit" id="spoust_work_unit">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_company_addr_province>单位地址(省)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_company_addr_province" id="spoust_company_addr_province">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_company_addr_city>单位地址(市)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_company_addr_city" id="spoust_company_addr_city">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_company_addr_county>单位地址(区/县)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_company_addr_county" id="spoust_company_addr_county">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for=spoust_company_addr>单位地址</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:spoust_company_addr" id="spoust_company_addr">
+                        </div>
+
+
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        
+        <div class="modal fade" id="addEmergencyModal" tabindex="-1" role="dialog" aria-labelledby="addEmergencyModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addEmergencyModalLabel">增加联系人</h4>
+                    </div>
+                    <div class="modal-body">
+ 
+                        <div class="form-group">
+                            <label for="emergencyName">姓名</label>
+                            <input type="text"  data-bind="value:emergencyName" class="form-control" id="emergencyName" placeholder="姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergencyPhone">手机号</label>
+                            <input type="text"  data-bind="value:emergencyPhone" class="form-control" id="emergencyPhone" placeholder="手机号">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergencyAddr">现居住地址</label>
+                            <input type="text"  data-bind="value:emergencyAddr" class="form-control" id="emergencyAddr" placeholder="现居住地址">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergencyRelationship">与联系人关系</label>
+                            <input type="text"  data-bind="value:emergencyRelationship" class="form-control" id="emergencyRelationship" placeholder="与联系人关系">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="addrProvince">现居住地址(省)</label>
+                            <input type="text"  data-bind="value:addrProvince" class="form-control" id="addrProvince" placeholder="现居住地址(省)">
+                        </div>
+                        <div class="form-group">
+                            <label for="addrCity">现居住地址(市)</label>
+                            <input type="text"  data-bind="value:addrCity" class="form-control" id="addrCity" placeholder="现居住地址(市)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="addrCounty">现居住地址(区/县)</label>
+                            <input type="text"  data-bind="value:addrCounty" class="form-control" id="addrCounty" placeholder="现居住地址(区/县)">
+                        </div>
+                        
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+                        <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+		
+		<div class="panel panel-default">
+            <div class="panel-heading">联系人列表</div>
+	        <div id="toolbar_emergency" class="btn-group">
+	            <button id="btn_add" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	            </button>
+	            
+	            <button id="btn_edit" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+	            </button>
+	            <button id="btn_delete" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	            </button>
+	             
+	        </div>
+	        <table id="tb_emergency"></table>
+        </div>
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">项目信息</div>
+            <div class="panel-body">
+                <form id="form_proInfo" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                    	
+                    	
+                        <label class="control-label col-sm-1" for="proName">项目名</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:proName" id="proName">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="proStatus">项目状态</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:proStatus" id="proStatus">
+                        </div>
+                        
+                         <label class="control-label col-sm-1" for="productType">产品类型(编号)</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:productType" id="productType">
+                        </div>
+                        
+                        <label class="control-label col-sm-1" for="payWay">支付方式</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:payWay" name="payWay"  id="payWay">
+		                        <option value =1>期末等额本息</option>
+		                        <option value =2>期初不等额</option>
+		                        <option value =3>期末不等额</option>
+		                        <option value =4>期初等额本息</option>
+		                        <option value =5>期末等额本金</option>
+		                        <option value =6>期初等额本金</option>
+		                        <option value =7>等额平息</option>
+		                        <option value =13>手工导入</option>
+	                    	</select>
+                         </div>
+
+                        <label class="control-label col-sm-1" for="roundUpType">金额进位方式</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:roundUpType" name="roundUpType"  id="roundUpType">
+		                        <option value =1>直接进位</option>
+		                        <option value =2>四舍五入</option>
+	                    	</select>
+                         </div>
+                         
+                        <label class="control-label col-sm-1" for="yearInterest">贷款利率</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:yearInterest" id="yearInterest">
+                        </div>
+                        <label class="control-label col-sm-1" for="leaseTerm">期数</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:leaseTerm" id="leaseTerm">
+                        </div>
+                        <label class="control-label col-sm-1" for="leasePeriod">周期</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:leasePeriod" id="leasePeriod">
+                        </div>
+                        <label class="control-label col-sm-1" for="leaseTopric">项目设备总额</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:leaseTopric" id="leaseTopric">
+                        </div>
+                        <label class="control-label col-sm-1" for="loanMoney">贷款金额</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:loanMoney" id="loanMoney">
+                        </div>
+                        <label class="control-label col-sm-1" for="firstrentValue">首付比例</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:firstrentValue" id="firstrentValue">
+                        </div>
+                        <label class="control-label col-sm-1" for="firstrentMoney">首付金额</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:firstrentMoney" id="firstrentMoney">
+                        </div>
+                        <label class="control-label col-sm-1" for="bailPercent">保证金比例</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:bailPercent" id="bailPercent">
+                        </div>
+						<label class="control-label col-sm-1" for="depositMoney">保证金金额</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:depositMoney" id="depositMoney">
+                        </div>
+                        <label class="control-label col-sm-1" for="poundageRate">手续费比例</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:poundageRate" id="poundageRate">
+                        </div>
+                        <label class="control-label col-sm-1" for="poundagePrice">手续费金额</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:poundagePrice" id="poundagePrice">
+                        </div>
+                        <label class="control-label col-sm-1" for="proPouneagePrice">项目保证金</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:proPouneagePrice" id="proPouneagePrice">
+                        </div>
+                        <label class="control-label col-sm-1" for="totalMonthPrice">租金合计</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:totalMonthPrice" id="totalMonthPrice">
+                        </div>                        
+                        <label class="control-label col-sm-1" for="monthRent">月供</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:monthRent" id="monthRent">
+                        </div>     
+                        <label class="control-label col-sm-1" for="bankCardNo">还款卡号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:bankCardNo" id="bankCardNo">
+                        </div>     
+                        <label class="control-label col-sm-1" for="bankName">卡开户行名</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:bankName" id="bankName">
+                        </div>     
+                        <label class="control-label col-sm-1" for="bankCardMobile">银行预留手机号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:bankCardMobile" id="bankCardMobile">
+                        </div>     
+                        <label class="control-label col-sm-1" for="createTime">项目创建时间</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:createTime" id="createTime">
+                        </div>    
+                        
+                         <label class="control-label col-sm-1" for="businessType">业务类型</label>
+                    	<div class="col-sm-3">
+	                        <select class="form-control" data-bind="value:businessType" name="businessType"  id="businessType">
+		                        <option value =1>直租</option>
+		                        <option value =2>回租</option>
+	                    	</select>
+                         </div>
+                                                  
+                        <label class="control-label col-sm-1" for="open_trem">展期期次</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:open_trem" id="open_trem">
+                        </div>     
+                        <label class="control-label col-sm-1" for="open_rent">展期租金</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:open_rent" id="open_rent">
+                        </div>     
+
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">车辆列表</div>
+	        <div id="toolbar_car" class="btn-group">
+	            <button id="btn_add_car" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	            </button>
+	            
+	            <button id="btn_edit_car" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+	            </button>
+	            <button id="btn_delete_car" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	            </button>
+	             
+	        </div>
+	        <table id="tb_car"></table>
+        </div>
+         <div class="modal fade" id="addCarModal" tabindex="-1" role="dialog" aria-labelledby="addCarModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addCarModalLabel">增加车辆</h4>
+                    </div>
+                    <div class="modal-body">
+ 
+ 						<div class="form-group">
+	                        <label for="isNewCar">是否是新车</label>
+	                        <select class="form-control" data-bind="value:isNewCar" id="isNewCar">
+		                        <option value =1>新车</option>
+		                        <option value =2>二手车</option>
+	                    	</select>
+                         </div>
+                         
+                         
+                        <div class="form-group">
+                            <label for="carId">设备Id(可为空)</label>
+                            <input type="text"  data-bind="value:carId" class="form-control" id="carId" placeholder="设备Id">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Supplier">车商名称</label>
+                            <input type="text"  data-bind="value:Supplier" class="form-control" id="Supplier" placeholder="车商名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="Company">厂商</label>
+                            <input type="text"  data-bind="value:Company" class="form-control" id="Company" placeholder="厂商">
+                        </div>
+                        <div class="form-group">
+                            <label for="Brand">品牌</label>
+                            <input type="text"  data-bind="value:Brand" class="form-control" id="Brand" placeholder="品牌">
+                        </div>
+                        <div class="form-group">
+                            <label for="Series">车系</label>
+                            <input type="text"  data-bind="value:Series" class="form-control" id="Series" placeholder="车系">
+                        </div>
+                        <div class="form-group">
+                            <label for="Model">型号</label>
+                            <input type="text"  data-bind="value:Model" class="form-control" id="Model" placeholder="型号">
+                        </div>
+                        <div class="form-group">
+                            <label for="referPrice">指导价</label>
+                            <input type="text"  data-bind="value:referPrice" class="form-control" id="referPrice" placeholder="指导价">
+                        </div>
+                        <div class="form-group">
+                            <label for="actualPrice">实际价格</label>
+                            <input type="text"  data-bind="value:actualPrice" class="form-control" id="actualPrice" placeholder="实际价格">
+                        </div>
+                        <div class="form-group">
+                            <label for="Unit">设备单位</label>
+                            <input type="text"  data-bind="value:Unit" class="form-control" id="Unit" placeholder="设备单位">
+                        </div>
+                        <div class="form-group">
+                            <label for="engineNo">发送机号/许可证号</label>
+                            <input type="text"  data-bind="value:engineNo" class="form-control" id="engineNo" placeholder="发送机号/许可证号">
+                        </div>
+                        <div class="form-group">
+                            <label for="VIN">整机编号/车架号</label>
+                            <input type="text"  data-bind="value:VIN" class="form-control" id="VIN" placeholder="整机编号/车架号">
+                        </div>
+                        <div class="form-group">
+                            <label for="insExpireDate">保险到期日期(YYYY-MM-DD)</label>
+                            <input type="text"  data-bind="value:insExpireDate" class="form-control" id="insExpireDate" placeholder="保险到期日期">
+                        </div>
+                        <div class="form-group">
+                            <label for="Insure">保险(精确到分)</label>
+                            <input type="text"  data-bind="value:Insure" class="form-control" id="Insure" placeholder="保险">
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleTax">车船税(精确到分)</label>
+                            <input type="text"  data-bind="value:vehicleTax" class="form-control" id="vehicleTax" placeholder="车船税">
+                        </div>
+                        <div class="form-group">
+                            <label for="GPSLoanMoney">GPS安装费(精确到分)</label>
+                            <input type="text"  data-bind="value:GPSLoanMoney" class="form-control" id="GPSLoanMoney" placeholder="GPS安装费">
+                        </div>
+                        <div class="form-group">
+                            <label for="carNumMoney">上牌费(精确到分)</label>
+                            <input type="text"  data-bind="value:carNumMoney" class="form-control" id="carNumMoney" placeholder="上牌费">
+                        </div>
+                        <div class="form-group">
+                            <label for="purchaseTax">购置税(精确到分)</label>
+                            <input type="text"  data-bind="value:purchaseTax" class="form-control" id="purchaseTax" placeholder="购置税">
+                        </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+                        <button type="button" id="btn_submit_car" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+         <div class="modal fade" id="addFeeModal" tabindex="-1" role="dialog" aria-labelledby="addFeeModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addFeeModalLabel">增加费用信息</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<div class="form-group">
+	                        <label for="feeType">费用类型</label>
+	                        <select class="form-control" data-bind="value:feeType" id="feeType">
+		                        <option value =1>首付金额</option>
+		                        <option value =2>保证金</option>
+		                        <option value =3>手续费</option>
+		                        <option value =4>保险</option>
+		                        <option value =5>车船税</option>
+		                        <option value =6>GPS费用</option>
+		                        <option value =7>购置税</option>
+		                        <option value =8>上牌费</option>
+		                        <option value =9>其他费用</option>
+		                        <option value =10>尾款金额</option>
+	                    	</select>
+                         </div>
+                        <div class="form-group">
+                            <label for="feePercent">费用比例(保存实际小数比例)</label>
+                            <input type="text"  data-bind="value:feePercent" class="form-control" id="feePercent" placeholder="费用比例">
+                        </div>
+                        <div class="form-group">
+                            <label for="money">费用金额(精确到分)</label>
+                            <input type="text"  data-bind="value:money" class="form-control" id="money" placeholder="费用金额">
+                        </div>
+                        <div class="form-group">
+	                        <label for="isIncludeLoan">费用计入方式</label>
+	                        <select class="form-control" data-bind="value:isIncludeLoan" id="isIncludeLoan">
+		                        <option value ="JRSQK">计入首期款</option>
+		                        <option value ="JRRZE">计入融资额</option>
+	                    	</select>
+                         </div>
+                      <div class="form-group">
+	                        <label for="type">计算方式</label>
+	                        <select class="form-control" data-bind="value:type" id="type">
+		                        <option value =1>按照裸车价格</option>
+		                        <option value =2>按照融资额计算</option>
+		                        <option value =3>市场指导价(主要首付,保证金,手续费)</option>
+	                    	</select>
+                         </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+                        <button type="button" id="btn_submit_fee" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+		
+		<div class="panel panel-default">
+            <div class="panel-heading">费用列表</div>
+	        <div id="toolbar_fee" class="btn-group">
+	            <button id="btn_add_fee" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	            </button>
+	            
+	            <button id="btn_edit_fee" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+	            </button>
+	            <button id="btn_delete_fee" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	            </button>
+	             
+	        </div>
+	        <table id="tb_fee"></table>
+        </div>
+        
+        
+        <div class="modal fade" id="addRepaymentModal" tabindex="-1" role="dialog" aria-labelledby="addRepaymentModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addRepaymentModalLabel">增加还款计划</h4>
+                    </div>
+                    <div class="modal-body">
+                    	
+                        <div class="form-group">
+                            <label for="repaymentTerm">还款期数</label>
+                            <input type="text"  data-bind="value:repaymentTerm" class="form-control" id="repaymentTerm" placeholder="还款期数">
+                        </div>
+                        <div class="form-group">
+                            <label for="payDate">应还款日期</label>
+                            <input type="text"  data-bind="value:payDate" class="form-control" id="payDate" placeholder="应还款日期">
+                        </div>
+                        <div class="form-group">
+                            <label for="itemName">项目名称</label>
+                            <input type="text"  data-bind="value:itemName" class="form-control" id="itemName" placeholder="项目名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="itemMoney">项目金额</label>
+                            <input type="text"  data-bind="value:itemMoney" class="form-control" id="itemMoney" placeholder="项目金额">
+                        </div>
+                        <div class="form-group">
+	                        <label for="itemFlag">项目类型</label>
+	                        <select class="form-control" data-bind="value:itemFlag" id="itemFlag">
+		                        <option value =1>首期款</option>
+		                        <option value =2>租金</option>
+		                        <option value =3>DB保证金</option>
+		                        <option value =4>其他费用</option>
+	                    	</select>
+                         </div>
+                      <
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+                        <button type="button" id="btn_submit_repaymentPlan" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+		
+		<div class="panel panel-default">
+            <div class="panel-heading">还款计划列表</div>
+	        <div id="toolbar_repaymentPlan" class="btn-group">
+	            <button id="btn_add_repaymentPlan" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	            </button>
+	            
+	            <button id="btn_edit_repaymentPlan" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+	            </button>
+	            <button id="btn_delete_repaymentPlan" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	            </button>
+	             
+	        </div>
+	        <table id="tb_repaymentPlan"></table>
+        </div>
+        
+        
+        <div class="modal fade" id="addAuditModal" tabindex="-1" role="dialog" aria-labelledby="addAuditModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addAuditModalLabel">增加审批结果</h4>
+                    </div>
+                    <div class="modal-body">
+                    	
+                        <div class="form-group">
+                            <label for="proStage">项目阶段</label>
+                            <input type="text"  data-bind="value:proStage" class="form-control" id="proStage" placeholder="项目阶段">
+                        </div>
+                        <div class="form-group">
+                            <label for="remark">审核备注</label>
+                            <input type="text"  data-bind="value:remark" class="form-control" id="remark" placeholder="审核备注">
+                        </div>
+                        <div class="form-group">
+                            <label for="result">审核结果</label>
+                            <input type="text"  data-bind="value:result" class="form-control" id="result" placeholder="审核结果">
+                        </div>
+                        <div class="form-group">
+                            <label for="auditTime">审核时间</label>
+                            <input type="text"  data-bind="value:auditTime" class="form-control" id="auditTime" placeholder="审核时间">
+                        </div>
+			<div class="form-group">
+                            <label for="op">操作人</label>
+                            <input type="text"  data-bind="value:op" class="form-control" id="op" placeholder="审核时间">
+                        </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+                        <button type="button" id="btn_submit_audit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+		
+		<div class="panel panel-default">
+            <div class="panel-heading">审批结果列表</div>
+	        <div id="toolbar_audit" class="btn-group">
+	            <button id="btn_add_audit" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	            </button>
+	            
+	            <button id="btn_edit_audit" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+	            </button>
+	            <button id="btn_delete_audit" type="button" class="btn btn-default">
+	                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	            </button>
+	             
+	        </div>
+	        <table id="tb_audit"></table>
+        </div>
+        
+	    <div class="col-sm-4" style="text-align:left;">
+	        <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">提交</button>
+	    </div>
+	    
+    </div>
+    
+</body>
+
+</html>

@@ -25,11 +25,10 @@ public class BatchController extends BaseController{
 	@Resource
 	private BatchService batchService;	
 	
-	// ��ѯ
 	@RequestMapping("/addBatchTest")
 	public String viewAll10() {
 		Batch batch = new Batch();
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//�������ڸ�ʽ 
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//
 		
 		batch.setAppid(12);
 		batch.setAppid(13);
@@ -39,3 +38,4 @@ public class BatchController extends BaseController{
 		return "test";
 	}
 }
+

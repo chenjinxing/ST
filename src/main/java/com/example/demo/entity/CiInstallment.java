@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-//������Ϣ
+//分期信息
 public class CiInstallment
 {
 	 public String getInstallmentid() {
@@ -93,19 +93,19 @@ public class CiInstallment
 	public void setRepaymentamount(Float repaymentamount) {
 		this.repaymentamount = repaymentamount;
 	}
-   private String installmentid; // 11548,//����ID
-   private Float installmentamount; // 4021.03,//�����ܶ�
-   private Integer installmentno; // 1,//��������
-   private Float principal; // 326.0,//���ڽ��
-   private Float installmentcurrentamount; // 326.0,//����
-   private Float interest; // 0.0,// ��Ϣ
-   private Float latefee; // 0.0,// ���ɽ�
-   private Float unlatefee; // 0.0,// �������ɽ�
-   private String duedate; // "2017-08-10",//���ڻ�����
-   private String tradingday; // "2017-07-04",//��������
-   private Integer installmentstatus; // 1,// ����״̬ 1-����;2-�ѻ�
-   private String repaymentdate; // "",//ʵ�ʻ���ʱ��
-   private String repaymentperson; // null,// ʵ�ʻ���������
-   private String paychannelname; // null,// ʵ�ʻ���֧��ͨ��
-   private Float repaymentamount; // 0.0,// ʵ�ʻ�����
+ private String installmentid; // 11548,//分期ID
+ private Float installmentamount; // 4021.03,//分期总额
+ private Integer installmentno; // 1,//分期期数
+ private Float principal; // 326.0,//本期金额
+ private Float installmentcurrentamount; // 326.0,//本金
+ private Float interest; // 0.0,// 利息
+ private Float latefee; // 0.0,// 滞纳金
+ private Float unlatefee; // 0.0,// 减免滞纳金
+ private String duedate; // "2017-08-10",//到期还款日
+ private String tradingday; // "2017-07-04",//交易日期
+ private Integer installmentstatus; // 1,// 还款状态 1-待还;2-已还
+ private String repaymentdate; // "",//实际还款时间
+ private String repaymentperson; // null,// 实际还款人姓名
+ private String paychannelname; // null,// 实际还款支付通道
+ private Float repaymentamount; // 0.0,// 实际还款金额
 }

@@ -40,6 +40,7 @@ public interface PartnerMapper {
      *
      * @mbg.generated Tue Jun 12 16:59:45 CST 2018
      */
+    int selectMainUser(Integer partnerid);
     Partner selectByPrimaryKey(Integer partnerid);
     Partner selectByUniqueKey(String partnercode);
     

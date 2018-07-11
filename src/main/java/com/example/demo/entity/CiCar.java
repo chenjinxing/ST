@@ -1,22 +1,22 @@
 package com.example.demo.entity;
 
-//������Ϣ
+//车辆信息
 public class CiCar
 {
-  private String licenseNo; // "��A12345", //����
-  private String frameNo; // "", //���ܺ�
-  private String engineNo; // "", //��������
-  private String vintageModels; // "", //��ݿ���
-  private String standardName; // "", //������ݿ����׼����
-  private String brandName; // "", //Ʒ��
-  private String familyName; // "", //��ϵ
-  private String engineDesc; // "", //����
-  private String gearBoxType; // "", //��������
-  private String ownerName; // "", //����
-  private Integer ownerCertificateType; // 0, //����֤������
-  private String ownerID; // "", //����֤����
-  private String ownerMobile; // "", //��ϵ�绰
-  private String firstRegisterDate; // "2015-01-07"//��������  
+  private String licenseNo; // "辽A12345", //车牌
+  private String frameNo; // "", //车架号
+  private String engineNo; // "", //发动机号
+  private String vintageModels; // "", //年份款项
+  private String standardName; // "", //车辆年份款项标准名称
+  private String brandName; // "", //品牌
+  private String familyName; // "", //车系
+  private String engineDesc; // "", //排量
+  private String gearBoxType; // "", //车挡类型
+  private String ownerName; // "", //车主
+  private Integer ownerCertificateType; // 0, //车主证件类型
+  private String ownerID; // "", //车主证件号
+  private String ownerMobile; // "", //联系电话
+  private String firstRegisterDate; // "2015-01-07"//初登日期  
   
   public String getLicenseNo() {
 		return licenseNo;

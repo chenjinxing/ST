@@ -5,56 +5,56 @@ import java.util.List;
 public class CiOrder {
 
 	private String id;
-	private Integer appid; // 1,//ƽ̨id
-    private Integer assetsid; // 2,//�ʲ���id
-    private String orderid; // 10216,//ƽ̨�������
-    private String appBatchId; // "1",//ƽ̨������������
+	private Integer appid; // 1,//平台id
+    private Integer assetsid; // 2,//资产方id
+    private String orderid; // 10216,//平台订单编号
+    private String appBatchId; // "1",//平台订单所在批次
     
-    private Integer batchId; // "1",//������������
-    private String orderno; // "1439283951",//ƽ̨������
+    private Integer batchId; // "1",//订单所在批次
+    private String orderno; // "1439283951",//平台订单号
 
-    private String ordergroupid; // 60187, //ƽ̨�������
-    private String productid; // 10001,//��ƷID
-    private Integer producttype; // 1, //��Ʒ����
-    private Float repaidamount; // 0.0,//�ѻ����
-    private Float unrepaidamount; // 4021.03,//δ�����
-    private String currentduedate; // null,//���ڻ�����
-    private Integer overduenum; // 0,// ��������
-    private Integer currentduenum; // 0,// ��ǰ��������
-    private Float currentamount; // 326.0,//����Ӧ�����
-    private String installmentstartdate; // "2017-08-10",//������ʼ����
-    private String installmentenddate; // "2018-07-10",//���ڽ�������
-    private String policystartdate; // "2017-07-05",//������ʼ����
-    private Integer installmentnum; // 12,//��������
-    private Float installmentamount; // 4021.03,//�����ܶ�
-    private Float downpaymentamount; // 1718.03,// �׸����
-    private Float cautionmoney; // 402.1,//��֤����
-    private Float discountfee; // 1005.0,//�Żݽ��
-    private Integer discountinstallmentnum; // 3,//�Ż�����
-    private Float strongamount; // 950.0,//��ǿ�ս��
-    private Float caramount; // 360.0,//����˰���
-    private Float businessamount; // 4021.03,//��ҵ���ܶ� 
-    private Float orderamount; // 5331.03,// �������
-    private String productname; // "������ҵ��0��Ϣ0����һ����",
-    private Boolean issubmitphoto; // true,//�Ƿ��ϴ�ͼƬ   
-    private Integer status; // 4,//״̬
-    private Integer orderstep; // 0,//����
-    private Integer source; // 1,//������Դ
-    private Float shouldpay; // 1718.03,//Ӧ�����
-    private Float orderprice; // 5733.03,//�����ܶ� 
-    private String refundtime; // null,//�˿�ʱ��
-    private String canceltime; // null,//ȡ��ʱ��
-    private String cancelreason; // "",//ȡ��ԭ��
-    private String addtime; // "2017-07-04 19:38:51",//��������
-    private String payvalidtime; // "2017-07-04 23:50:00", //֧��/����������Ч��
-    //��������
+    private String ordergroupid; // 60187, //平台订单组号
+    private String productid; // 10001,//产品ID
+    private Integer producttype; // 1, //产品类型
+    private Float repaidamount; // 0.0,//已还金额
+    private Float unrepaidamount; // 4021.03,//未还金额
+    private String currentduedate; // null,//当期还款日
+    private Integer overduenum; // 0,// 逾期天数
+    private Integer currentduenum; // 0,// 当前还款期数
+    private Float currentamount; // 326.0,//当期应还金额
+    private String installmentstartdate; // "2017-08-10",//分期起始日期
+    private String installmentenddate; // "2018-07-10",//分期结束日期
+    private String policystartdate; // "2017-07-05",//保单起始日期
+    private Integer installmentnum; // 12,//分期期数
+    private Float installmentamount; // 4021.03,//分期总额
+    private Float downpaymentamount; // 1718.03,// 首付金额
+    private Float cautionmoney; // 402.1,//保证金金额
+    private Float discountfee; // 1005.0,//优惠金额
+    private Integer discountinstallmentnum; // 3,//优惠期数
+    private Float strongamount; // 950.0,//交强险金额
+    private Float caramount; // 360.0,//车船税金额
+    private Float businessamount; // 4021.03,//商业险总额 
+    private Float orderamount; // 5331.03,// 订单金额
+    private String productname; // "车险商业险0利息0手续一年期",
+    private Boolean issubmitphoto; // true,//是否上传图片   
+    private Integer status; // 4,//状态
+    private Integer orderstep; // 0,//步骤
+    private Integer source; // 1,//订单来源
+    private Float shouldpay; // 1718.03,//应付金额
+    private Float orderprice; // 5733.03,//订单总额 
+    private String refundtime; // null,//退款时间
+    private String canceltime; // null,//取消时间
+    private String cancelreason; // "",//取消原因
+    private String addtime; // "2017-07-04 19:38:51",//创建日期
+    private String payvalidtime; // "2017-07-04 23:50:00", //支付/补齐资料有效期
+    //其他数据
     private CiCustomer customer;
 	private CiCar car;
     private List<CiCoverage> coveragelist;
     private List<CiPolicy> policylist;
     private List<CiInstallment> installmentlist;
     private List<CiOrderphoto> orderphotolist;
-    //�ж�ĳ�����Ƿ����
+    //判断某批次是否存在
     public boolean isExistInstallment(int installmentNo)
     {
     	for(CiInstallment iter:installmentlist)

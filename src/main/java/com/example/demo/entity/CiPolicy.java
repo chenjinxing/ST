@@ -1,11 +1,11 @@
 package com.example.demo.entity;
 
 
-//������Ϣ
+//保单信息
 public class CiPolicy
 {
 
-  public String getPolicyno() {
+public String getPolicyno() {
 		return policyno;
 	}
 	public void setPolicyno(String policyno) {
@@ -107,22 +107,22 @@ public class CiPolicy
 	public void setApplicantname(String applicantname) {
 		this.applicantname = applicantname;
 	}
-	private String policyno; // null,//������
-  private String policystartdate; // "2017-07-05",//��Ч����
-  private String policyenddate; // "2018-07-04",//��ֹ����
-  private Integer policystatus; // 1,//����״̬
-  private String proposalno; // null,
-  private Float insuredpremium; // 4021.03,//���ջ�ǿ�ܶ�
-  private Float otherpremium; // 536.94,//����˰
-  private String insurerpartnername; // "��ʢ��ƽ����",
-  private Integer insurertype; // 1,//����:1-��ҵ��,2-��ǿ��
-  private String insuredate; // "2017-07-04",//Ͷ������
-  private String cityname; // "��ݸ��",//��
-  private String insuredname; // "��Ҷ",//������
-  private String insuredid; // "14222319850316063X",//���������֤
-  private String insuredmobile; // "18515065805",//�������ֻ���
-  private Integer insuredcertificatetype; // 0,//������֤������0-���֤
-  private String beneficiaryname; // "",//������
-  private String applicantname; // "����"//Ͷ����
+	private String policyno; // null,//保单号
+private String policystartdate; // "2017-07-05",//生效日期
+private String policyenddate; // "2018-07-04",//截止日期
+private Integer policystatus; // 1,//保单状态
+private String proposalno; // null,
+private Float insuredpremium; // 4021.03,//商险或交强总额
+private Float otherpremium; // 536.94,//车船税
+private String insurerpartnername; // "安盛天平财险",
+private Integer insurertype; // 1,//险种:1-商业险,2-交强险
+private String insuredate; // "2017-07-04",//投保日期
+private String cityname; // "东莞市",//市
+private String insuredname; // "郝叶",//被保人
+private String insuredid; // "14222319850316063X",//被保人身份证
+private String insuredmobile; // "18515065805",//被保人手机号
+private Integer insuredcertificatetype; // 0,//被保人证件类型0-身份证
+private String beneficiaryname; // "",//受益人
+private String applicantname; // "张三"//投保人
 
 }

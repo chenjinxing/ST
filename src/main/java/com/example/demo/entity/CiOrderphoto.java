@@ -1,10 +1,10 @@
 package com.example.demo.entity;
 
-//ͼƬ��Ϣ
+//图片信息
 public class CiOrderphoto
 {
 	private Integer orderphotoid; // 1,//Id
-    public Integer getOrderphotoid() {
+  public Integer getOrderphotoid() {
 		return orderphotoid;
 	}
 	public void setOrderphotoid(Integer orderphotoid) {
@@ -40,9 +40,9 @@ public class CiOrderphoto
 	public void setPhototype(Integer phototype) {
 		this.phototype = phototype;
 	}
-	private String orderid; // 10216,//�������
-  private String orderno; // null,//������
-  private String photourl; // "",//ͼƬURL
-  private String photoname; // "",//ͼƬ����
-  private Integer phototype; // 8//����
+	private String orderid; // 10216,//订单编号
+private String orderno; // null,//订单号
+private String photourl; // "",//图片URL
+private String photoname; // "",//图片名称
+private Integer phototype; // 8//类型
 }

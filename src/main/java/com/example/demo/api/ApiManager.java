@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import com.example.demo.api_cl.CL_ReqInsertOrder;
 import com.example.demo.entity.Partner;
 import com.example.demo.service.PartnerService;
 import com.example.demo.service.PermissionService;
@@ -55,7 +56,8 @@ public class ApiManager {
 	@Resource
 	private CI_ReqUpdateOrderInstallMent cI_ReqUpdateOrderInstallMent;
 	
-	
+	@Resource
+	private CL_ReqInsertOrder cL_ReqInsertOrder;
 	
 	@PostConstruct
 	private void initApi()

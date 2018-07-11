@@ -19,6 +19,7 @@ import com.github.tobato.fastdfs.FdfsClientConfig;
 @MapperScan(value = "com.example.demo.mapper")
 @ComponentScan("com.example.demo.action")
 @ComponentScan("com.example.demo.api")
+@ComponentScan("com.example.demo.api_cl")
 public class StFactorApplication {
 
 	public static void main(String[] args) {

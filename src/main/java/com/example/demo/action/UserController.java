@@ -63,7 +63,7 @@ public class UserController extends BaseController{
 		return "test";
 	}
 	
-	@RequestMapping("/login")
+	@RequestMapping("/login.action")
 	@ResponseBody
 	public String postTest2(@RequestBody Stuser stuser) {
 		Stuser user;
@@ -83,7 +83,7 @@ public class UserController extends BaseController{
 			return "wrong";
 		}
 	}
-	@RequestMapping("/checklogin")
+	@RequestMapping("/checklogin.action")
 	@ResponseBody
 	public String checklogin(@RequestBody Stuser stuser){
 		Stuser user;

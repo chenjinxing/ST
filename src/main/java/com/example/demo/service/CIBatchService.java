@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -16,7 +17,7 @@ public class CIBatchService {
 	@Resource
 	private CiBatchMapper ciBatchMapper;
 
-	//���� ������id �� �������ڲ�idȷ��CiBatch
+	//根据 合作者id 和 合作者内部id确定CiBatch
 	public CiBatch selectBatchByUniqueKey(int partnerid,String appbatchid)
 	{
 		CiBatch batch =new CiBatch();
@@ -27,11 +28,11 @@ public class CIBatchService {
 			return null;
 		return batchs.get(0);
 	}
-	//��ѯ�б�
+	//查询列表
 	public List<CiBatch> selectBatchSelective(CiBatch batch) {
 		return ciBatchMapper.selectBatchSelective(batch);
 	}
-	//����partnerId��ѯ�б�
+	//根据partnerId查询列表
 	public List<CiBatch> selectBatchByPartnerId(int partnerid) {
 		CiBatch batch =new CiBatch();
 		batch.setPartnerid(partnerid);
@@ -40,27 +41,27 @@ public class CIBatchService {
 	}
 	public int selectBatchCountSelective(CiBatch batch,int pagesize)
 	{
-		//����Ŀ
+		//总数目
 		int allcount =ciBatchMapper.selectBatchCountSelective(batch);
 		return (int) Math.ceil((double)allcount/pagesize);
 	}
-	//��ҳ��ѯ�б�
+	//分页查询列表
 	public List<CiBatch> selectBatchSelective(CiBatch batch,int pagesize,int pageindex) {
-		//��ʼ����
+		//起始索引
 		int start = pagesize *(pageindex -1);
 		return ciBatchMapper.selectBatchSelectivePaging(batch, start, pagesize);
 	}
-	//ɾ������
+	//删除批次
 	public int deleteBatchById(int batchId)
 	{
 		return ciBatchMapper.deleteByPrimaryKey(batchId);
 	}
-	//��������
+	//新增批次
 	public int insertBatch(CiBatch batch)
 	{
 		return ciBatchMapper.insertSelective(batch);
 	}
-	//��������
+	//更新批次
 	public int updateBatch(CiBatch batch)
 	{
 		return ciBatchMapper.updateByPrimaryKeySelective(batch);
