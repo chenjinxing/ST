@@ -15,6 +15,7 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ import com.example.demo.entity.Partnerfile;
 import com.example.demo.entity.Partnertype;
 import com.example.demo.entity.Stuser;
 import com.example.demo.fdfs.FastDFSClientWrapper;
+import com.example.demo.http.HBJZClient;
 import com.example.demo.service.ClOrderService;
 import com.example.demo.service.ClOrderbaseService;
 import com.example.demo.service.PartnerService;
@@ -85,6 +87,9 @@ class CarLoanPostController extends BaseController{
 	@Resource
 	UserService stuserService;
 	
+	@Resource
+	HBJZClient hbjzClient;
+	
 	@RequestMapping("/clOrderInsert")
 	@ResponseBody
 	public String clOrderInsert(String req) {
@@ -118,10 +123,11 @@ class CarLoanPostController extends BaseController{
 		ClOrder data = clOrderService.findById(String.valueOf(proId));
 		if(null ==data)
 			return "{\"result\":false,\"code\":0,\"msg\":\"加载订单异常\",\"data\":null}";
+		if(hbjzClient.applyClOrder(data))
+			return "{\"result\":true,\"code\":0,\"msg\":\"申请提交成功\",\"data\":null}";
 		
-		return "{\"result\":true,\"code\":0,\"msg\":\"申请提交成功\",\"data\":null}";
+		return "{\"result\":false,\"code\":0,\"msg\":\"申请提交失败\",\"data\":null}";
 	}
-	
 	
 	@RequestMapping("/clOrderLoad")
 	@ResponseBody
