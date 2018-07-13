@@ -29,6 +29,8 @@ import com.example.demo.api.CI_ReqPartnertype;
 import com.example.demo.api.CI_ReqUpdateOrderAll;
 import com.example.demo.api_cl.CL_ReqInsertOrder;
 import com.example.demo.api_cl.CL_ReqUpdateOrder;
+import com.example.demo.entity.ClAssetapplyresult;
+import com.example.demo.entity.ClCar;
 import com.example.demo.entity.ClOrder;
 import com.example.demo.entity.ClOrderData;
 import com.example.demo.entity.ClOrderbase;
@@ -38,6 +40,15 @@ import com.example.demo.entity.Partnertype;
 import com.example.demo.entity.Stuser;
 import com.example.demo.fdfs.FastDFSClientWrapper;
 import com.example.demo.http.HBJZClient;
+import com.example.demo.protocol.CL_ReqCheckedFourData;
+import com.example.demo.protocol.CL_ReqVinData;
+import com.example.demo.protocol.CL_RtnCheckedFourData;
+import com.example.demo.protocol.CL_RtnGetCarVin;
+import com.example.demo.protocol.CL_RtnGetOrderCheckFour;
+import com.example.demo.protocol.CL_RtnVinData;
+import com.example.demo.protocol.CheckedFour;
+import com.example.demo.protocol.VinData;
+import com.example.demo.service.ClAssetapplyresultService;
 import com.example.demo.service.ClOrderService;
 import com.example.demo.service.ClOrderbaseService;
 import com.example.demo.service.PartnerService;
@@ -67,6 +78,19 @@ public class CarLoanController extends BaseController{
 	public String partnerFile(HttpServletRequest request) {
 		return "carLoan/clOrderbaseSelect";
 	}
+	@RequestMapping("/clOrderApplyResult")
+	public String clOrderApplyResult(HttpServletRequest request) {
+		return "carLoan/clOrderApplyResult";
+	}
+	@RequestMapping("/clOrderCheckFour")
+	public String clOrderCheckFour(HttpServletRequest request) {
+		return "carLoan/clOrderCheckFour";
+	}
+	@RequestMapping("/clSendCarVin")
+	public String clSendCarVin(HttpServletRequest request) {
+		return "carLoan/clSendCarVin";
+	}
+
 }
 
 @RestController
@@ -86,6 +110,10 @@ class CarLoanPostController extends BaseController{
 	
 	@Resource
 	UserService stuserService;
+	
+	@Resource
+	ClAssetapplyresultService applyresultService;
+	
 	
 	@Resource
 	HBJZClient hbjzClient;
@@ -171,10 +199,145 @@ class CarLoanPostController extends BaseController{
 		return clOrderbaseService.selectByConditionJson(orderbase);
 	}
 	
+	//查询一个订单的所有历史审核结果
+	@RequestMapping("/clOrderApplyResult")
+	@ResponseBody
+	public String clOrderApplyResult(Integer limit, Integer offset, String search,String proid) {
+		if(proid.isEmpty() ||proid.compareTo("") ==0 )
+			proid="-1";
+		return applyresultService.selectResultByProidJson(Integer.parseInt(proid));
+	}
 	
+	//获取订单四要素
+	@RequestMapping("/clOrderGetCheckFour")
+	@ResponseBody
+	public String clOrderGetCheckFour(String proid) {
+		ClOrder data =clOrderService.findById(proid);
+		if(null ==data)
+			return "{\"result\":false,\"code\":0,\"msg\":\"加载订单异常\",\"data\":null}";
+		CheckedFour four= new CheckedFour();
+		four.setBankCardMobile(data.getData().getProInfo().getBankCardMobile());
+		four.setBankCardNo(data.getData().getProInfo().getBankCardNo());
+		four.setBankName(data.getData().getProInfo().getBankName());
+		four.setCustName(data.getData().getCustData().getCustName());
+		four.setIdCard(data.getData().getCustData().getIdcardNo());
+		CL_RtnGetOrderCheckFour rtnGetFour =new CL_RtnGetOrderCheckFour();
+		rtnGetFour.setCount(1);
+		rtnGetFour.setData(four);
+		rtnGetFour.setResult(1);
+		rtnGetFour.setNotice("查询成功");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String rtnStr =mapper.writeValueAsString(rtnGetFour);
+			return rtnStr;
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "{\"result\":-1,\"count\":0,\"notice\":\"error\",\"data\":[]}";
+	}
+	//四要素认证
+	@RequestMapping("/clOrderCheckFour")
+	@ResponseBody
+	public String clOrderCheckFour(String proid,String bankCardNo,String bankName,String bankCardMobile,String idCard,String custName) {
+		String failRtn ="{\"result\":-1,\"count\":0,\"notice\":\"error\",\"data\":[]}";
+		if(null ==proid||null ==bankCardNo||null ==bankName||null ==bankCardMobile||null ==idCard||null ==custName)
+			return failRtn;
+		if(proid.isEmpty() ||bankCardNo.isEmpty() ||bankName.isEmpty() ||bankCardMobile.isEmpty() ||idCard.isEmpty() ||custName.isEmpty())
+			return failRtn;
+		CL_ReqCheckedFourData checkFour =new CL_ReqCheckedFourData();
+		checkFour.setCompanyCode("shengtongCode");
+		checkFour.setProId(Long.parseLong(proid));
+		CheckedFour checkFourData =new CheckedFour();
+		checkFourData.setBankCardMobile(bankCardMobile);
+		checkFourData.setBankCardNo(bankCardNo);
+		checkFourData.setBankName(bankName);
+		checkFourData.setCustName(custName);
+		checkFourData.setIdCard(idCard);
+		checkFour.setData(checkFourData);
+		
+		
+		CL_RtnCheckedFourData rtnData= hbjzClient.toCheckedFour(checkFour);
+		if(null ==rtnData)
+			return failRtn;
+		String result ="-1";
+		if(rtnData.isFlag())
+			result ="1";
+		String notice =rtnData.getMsg();
+		return "{\"result\":"+result+",\"count\":0,\"notice\":"+notice+",\"data\":[]}";
+	}
+	
+	//获取现有订单中的VIN
+	@RequestMapping("/clGetCarVin")
+	@ResponseBody
+	public String clGetCarVin(String proid) {
+		ClOrder data =clOrderService.findById(proid);
+		if(null ==data)
+			return "{\"result\":false,\"code\":0,\"msg\":\"加载订单异常\",\"data\":null}";
+		VinData vinData =new VinData();
+		
+		List<ClCar> cars =data.getData().getCarInfo();
+		if(cars.size() !=0)
+		{
+			ClCar car =cars.get(0);
+			//vinData.setCarColor();
+			vinData.setCarEngine(car.getEngineNo());
+			vinData.setCarId(car.getCarId());
+			//vinData.setCarNum(); //车牌号
+			vinData.setCarType(car.getSeries());
+			vinData.setVin(car.getVIN());
+		}
+		
+		CL_RtnGetCarVin rtnGetVin =new CL_RtnGetCarVin();
+		rtnGetVin.setCount(1);
+		rtnGetVin.setData(vinData);
+		rtnGetVin.setResult(1);
+		rtnGetVin.setNotice("查询成功");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String rtnStr =mapper.writeValueAsString(rtnGetVin);
+			return rtnStr;
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "{\"result\":-1,\"count\":0,\"notice\":\"error\",\"data\":[]}";
+	}
+	//发送Vin信息到资金方
+	@RequestMapping("/clSendCarVin")
+	@ResponseBody
+	public String clSendCarVin(String proid,String carColor,String carEngine,String carId,String carNum,String carType,String vin) {
+		String failRtn ="{\"result\":-1,\"count\":0,\"notice\":\"error\",\"data\":[]}";
+		if(null ==proid||null ==carColor||null ==carEngine||null ==carId||null ==carNum||null ==carType||null ==vin)
+			return failRtn;
+		if(proid.isEmpty()||carColor.isEmpty()||carEngine.isEmpty()||carId.isEmpty()||carNum.isEmpty()||carType.isEmpty()||vin.isEmpty())
+			return failRtn;
+		
+		VinData vinData =new VinData();
+		vinData.setCarColor(carColor);
+		vinData.setCarEngine(carEngine);
+		vinData.setCarId(Long.parseLong(carId));
+		vinData.setCarNum(carNum);
+		vinData.setCarType(carType);
+		vinData.setVin(vin);
+		
+		CL_ReqVinData reqVinData =new CL_ReqVinData(); 
+		reqVinData.setCompanyCode("shengtongCode");
+		reqVinData.setProId(proid);
+		reqVinData.setData(vinData);
+		
+		CL_RtnVinData rtnData= hbjzClient.toGetVin(reqVinData);
+		if(null ==rtnData)
+			return failRtn;
+		String result ="-1";
+		if(rtnData.isFlag())
+			result ="1";
+		String notice =rtnData.getMsg();
+		return "{\"result\":"+result+",\"count\":0,\"notice\":"+notice+",\"data\":[]}";
+	}
 }
-	
-	
 
 
 

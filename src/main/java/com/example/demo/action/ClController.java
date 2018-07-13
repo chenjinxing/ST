@@ -1,5 +1,7 @@
 package com.example.demo.action;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api_cl.CL_ReqInsertOrder;
 import com.example.demo.api_cl.CL_ReqUpdateOrder;
+import com.example.demo.entity.ClAssetapplyresult;
 import com.example.demo.entity.ClOrderbase;
 import com.example.demo.entity.Stuser;
 import com.example.demo.mapper.BankbatchMapper;
@@ -21,6 +24,7 @@ import com.example.demo.protocol.CL_ReqPaymentLoanData;
 import com.example.demo.protocol.CL_ReqTellApplyResult;
 import com.example.demo.protocol.CL_RtnPaymentLoanData;
 import com.example.demo.protocol.CL_RtnTellApplyResult;
+import com.example.demo.service.ClAssetapplyresultService;
 import com.example.demo.service.ClOrderService;
 import com.example.demo.service.ClOrderbaseService;
 import com.example.demo.service.UserService;
@@ -54,6 +58,9 @@ public class ClController extends BaseController{
 	@Resource
 	ClOrderService clOrderService;
 	
+	@Resource
+	ClAssetapplyresultService applyresultService;
+	
 	@RequestMapping("/postTest1")
 	public String postTest1(@RequestBody Map<String,String> map) {
 		System.out.println(map.get("id"));
@@ -73,9 +80,25 @@ public class ClController extends BaseController{
 		newOrderbase.setProid(proId);
 		newOrderbase.setStatusid(result.getData().getStatus());
 		int updateRtn =clOrderbaseService.updateOrderbase(newOrderbase);
+		//保存审核结果到本地
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+    	String updatetime =df.format(new Date());// new Date()为获取当前系统时间
+
+		ClAssetapplyresult localResult =new ClAssetapplyresult();
+		localResult.setProid(proId);
+		localResult.setMsg(result.getData().getMsg());
+		localResult.setLeasecode(result.getData().getLeaseCode());
+		localResult.setStatusid(result.getData().getStatus());
+		localResult.setTime(updatetime);
+		int saveresultRtn =applyresultService.insertSelective(localResult);
 		if(0 ==updateRtn)
 		{
 			rtnData.setMsg("订单状态更新失败");
+			return rtnData;
+		}
+		if(0 ==saveresultRtn)
+		{
+			rtnData.setMsg("订单状态更新成功，保存审核信息失败");
 			return rtnData;
 		}
 		rtnData.setFlag(true);

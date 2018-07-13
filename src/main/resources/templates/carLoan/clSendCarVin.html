@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>升通保理管理平台</title>
+     <!-- *1、Jquery组件引用* -->
+    <script th:attr="src=@{/js/jquery-1.10.2.min.js}"></script>
+
+    <!--@*2、bootstrap组件引用*@-->
+    <script th:attr="src=@{/js/bootstrap.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}" />
+    
+    <!--@*3、bootstrap table组件以及中文包的引用*@-->
+    <script th:attr="src=@{/js/bootstrap-table.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-table.css}" />
+    <script th:attr="src=@{/js/bootstrap-table-zh-CN.js}"></script>
+    
+    <!--@*4、页面Js文件的引用*@-->
+    
+   <!-- js knockout 增删改查 插件 -->
+	<script th:attr="src=@{/js/knockout-3.4.2.js}"></script>
+	<script th:attr="src=@{/js/knockout.mapping.js}"></script>    
+
+    <script type="text/javascript">
+        $(function () {
+        	//初始化
+            operate.operateInit();
+            $("#btn_query").click(function () {
+            	var proid =$("#proid").val();
+            	var data={
+            		"proid":proid
+            	};
+            	$.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clGetCarVin/",
+                    data: data,
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    success: function (json) {
+                    	json =JSON.parse(json);
+                        if (json.result == true) {
+                        	//表单
+                        	ko.utils.extend(operate.DepartmentModel,ko.mapping.fromJS(json.data));//修改viewmodel
+                        	//重新绑定
+                        	ko.cleanNode(document.getElementById("myModal"));
+                        	ko.applyBindings(operate.DepartmentModel,document.getElementById("myModal"));
+                        }else{
+                        	alert("四要素验证失败");
+                        }
+                    }
+                });
+            });//btn_query click
+            
+            $("#btn_send").click(function () {
+            	var proid =$("#proid").val();
+            	var checkData =ko.toJS(operate.DepartmentModel);
+            	var data={
+            		"proid":proid,
+            		"Vin":checkData.Vin,
+            		"carNum":checkData.carNum,
+            		"carColor":checkData.carColor,
+            		"carEngine":checkData.carEngine,
+            		"carType":checkData.carType,
+            		"carId":checkData.carId
+            	};
+            	$.ajax({
+                    type: "post",
+                    url: "/MavenSSM/CarLoan/clSendCarVin/",
+                    data: data,
+                    error: function () {
+                        alert("网络传输错误,请稍后再试,谢谢.");
+                    },
+                    success: function (json) {
+                    	json =JSON.parse(json);
+                        if (json.result == true) {
+                        	alert("发送成功");
+                        }else{
+                        	alert("发送失败"+json.notice);
+                        }
+                    }
+                });
+            });//btn_check click
+            
+        });
+      //初始化
+        var operate = {
+            // 初始化按钮事件
+            operateInit : function() {
+                this.DepartmentModel = {
+                		Vin : ko.observable(),  //和标签中的data-bind  对应
+                		carNum : ko.observable(),
+                		carColor : ko.observable(),
+                		carEngine : ko.observable(),
+                		carType : ko.observable(),
+                		carId : ko.observable()
+                };
+                ko.applyBindings(operate.DepartmentModel,
+                        document.getElementById("myModal"));
+            }// 初始化事件
+    	};
+    </script>
+</head>
+
+<body>
+
+	<div class="panel-body" style="padding-bottom:0px;">
+	
+		
+        <div class="panel panel-default">
+            <div class="panel-heading">项目ID</div>
+            <div class="panel-body">
+                <form id="formProId" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                        <label class="control-label col-sm-1" for="proid">项目订单ID</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="proid">
+                        </div>
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
+                        </div>
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_send" class="btn btn-primary">验证</button>
+                        </div>   
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">车辆Vin</div>
+            <div class="panel-body">
+                <form id="myModal" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                        <label class="control-label col-sm-1" for="Vin">车辆Vin</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:Vin" id="Vin">
+                        </div> 
+                        <label class="control-label col-sm-1" for="carNum">车牌号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:carNum" id="carNum">
+                        </div> 
+                        <label class="control-label col-sm-1" for="carColor">车身颜色</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:carColor" id="carColor">
+                        </div> 
+                        <label class="control-label col-sm-1" for="carEngine">发动机编号</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:carEngine" id="carEngine">
+                        </div> 
+                        <label class="control-label col-sm-1" for="carType">车系</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:carType" id="carType">
+                        </div> 
+                        <label class="control-label col-sm-1" for="carId">设备id</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" data-bind="value:carId" id="carId">
+                        </div> 
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</body>
+
+</html>

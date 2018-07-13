@@ -59,7 +59,7 @@ public class HBJZClient {
 		return rtnData.isFlag();
 	}
 	//四要素验证
-	public boolean toCheckedFour(CL_ReqCheckedFourData checkData)
+	public CL_RtnCheckedFourData toCheckedFour(CL_ReqCheckedFourData checkData)
 	{
 		Mono<String> resp = WebClient.create().post()
                 .uri("http://localhost:8080/api/Project!/toCheckedFour.action")
@@ -68,7 +68,6 @@ public class HBJZClient {
                 .retrieve().bodyToMono(String.class);
         LOGGER.info("result:{}",resp.block());
         String result =resp.block();
-        
         CL_RtnCheckedFourData rtnData;
         ObjectMapper mapper = new ObjectMapper();  
 		try {
@@ -76,12 +75,12 @@ public class HBJZClient {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return false;
+			return null;
 		}
-		return rtnData.isFlag();
+		return rtnData;
 	}
 	//推送车辆vin
-	public boolean toGetVin(CL_ReqVinData vinData)
+	public CL_RtnVinData toGetVin(CL_ReqVinData vinData)
 	{
 		Mono<String> resp = WebClient.create().post()
                 .uri("http://localhost:8080/api/Project!/toGetVin.action")
@@ -98,9 +97,9 @@ public class HBJZClient {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return false;
+			return null;
 		}
-		return rtnData.isFlag();
+		return rtnData;
 	}
 	//合同附件获取
 	public boolean toSendEmail(CL_ReqSendEmail vinData)
